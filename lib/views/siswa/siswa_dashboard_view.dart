@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../view_models/auth_view_model.dart';
 import '../../view_models/siswa_view_model.dart';
-import '../../models/jenis_catatan_model.dart';
 import '../widgets/custom_header.dart';
 import '../widgets/point_card.dart';
 import '../widgets/discipline_indicator.dart';
