@@ -29,27 +29,31 @@ class SiswaViewModel extends ChangeNotifier {
   List<JenisCatatan> get daftarPelanggaran => _daftarPelanggaran;
   List<Message> get inbox => _inbox;
 
-  /// Status disiplin berdasarkan total pelanggaran (max 100)
-  int get statusDisiplin => _totalPelanggaran > 100 ? 100 : _totalPelanggaran;
+  /// Status disiplin berdasarkan gabungan apresiasi (+) dan pelanggaran (-)
+  int get statusDisiplin => 100 - _totalPelanggaran + _totalApresiasi;
 
   /// Pesan peringatan berdasarkan status disiplin
   String? get peringatanDisiplin {
-    if (_totalPelanggaran >= 100) {
-      return 'Status disiplin mencapai batas maksimal. Tindakan lanjutan diperlukan sesuai aturan sekolah.';
-    } else if (_totalPelanggaran >= 75) {
-      return 'Status disiplin sudah mencapai batas peringatan. Harap memperbaiki perilaku. Orang tua dapat dipanggil jika pelanggaran terus bertambah.';
+    final score = statusDisiplin;
+    if (score <= -100) {
+      return '⚠️ Sanksi Berat: Indeks disiplin Anda telah mencapai batas kritis -100 atau kurang. Harap segera meminta keringanan/pembinaan ke Wali Kelas secara offline!';
+    } else if (score <= 0) {
+      return 'Peringatan Keras: Indeks disiplin Anda berada di bawah nol. Harap segera memperbaiki perilaku dan mengumpulkan poin apresiasi.';
+    } else if (score <= 50) {
+      return 'Peringatan: Indeks disiplin Anda kurang dari 50%. Harap kurangi pelanggaran agar tidak mencapai batas sanksi.';
     }
     return null;
   }
 
   /// Label status disiplin
   String get labelDisiplin {
-    if (_totalPelanggaran == 0) return 'Sangat Baik';
-    if (_totalPelanggaran < 25) return 'Baik';
-    if (_totalPelanggaran < 50) return 'Cukup';
-    if (_totalPelanggaran < 75) return 'Kurang';
-    if (_totalPelanggaran < 100) return 'Peringatan';
-    return 'Batas Maksimal';
+    final score = statusDisiplin;
+    if (score >= 90) return 'Sangat Baik';
+    if (score >= 75) return 'Baik';
+    if (score >= 50) return 'Cukup';
+    if (score >= 0) return 'Kurang';
+    if (score > -100) return 'Peringatan Keras';
+    return 'Batas Kritis / Sanksi';
   }
 
   /// Inisialisasi data siswa berdasarkan NIS

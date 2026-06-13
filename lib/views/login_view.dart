@@ -192,7 +192,7 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Masuk dengan nama lengkap dan NIP/NIS',
+                            'Masukkan Data Diri Anda',
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.white.withValues(alpha: 0.5),

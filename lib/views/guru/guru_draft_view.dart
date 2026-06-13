@@ -5,10 +5,10 @@ import '../../models/user_model.dart';
 import '../../view_models/guru_view_model.dart';
 import '../widgets/search_field.dart';
 
-/// Tab Draft & Kirim Surat Guru
+/// Halaman Detail Draft & Pesan Guru (Request #5)
 /// Menampilkan: 
 /// 1. Daftar Draft belum diproses (bisa proses per siswa, proses semua, edit, hapus)
-/// 2. Formulir Kirim Surat / Pesan Peringatan ke Siswa
+/// 2. Formulir Kirim Surat / Pesan Peringatan ke Siswa dengan Lampiran Dokumen Realistis
 class GuruDraftView extends StatefulWidget {
   const GuruDraftView({super.key});
 
@@ -27,6 +27,11 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
   final _lampiranController = TextEditingController();
   List<Siswa> _selectedRecipients = [];
 
+  // Simulated file upload states (Request #3)
+  String? _attachedFileName;
+  bool _isUploadingFile = false;
+  double _uploadProgress = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -43,19 +48,53 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
     super.dispose();
   }
 
+  void _simulateFileUpload(String fileName) async {
+    setState(() {
+      _isUploadingFile = true;
+      _uploadProgress = 0.0;
+      _attachedFileName = fileName;
+    });
+
+    // Jalankan timer untuk progress bar upload
+    for (int i = 1; i <= 10; i++) {
+      await Future.delayed(const Duration(milliseconds: 150));
+      if (!mounted) return;
+      setState(() {
+        _uploadProgress = i / 10.0;
+      });
+    }
+
+    setState(() {
+      _isUploadingFile = false;
+      _lampiranController.text = fileName;
+    });
+  }
+
+  void _removeAttachedFile() {
+    setState(() {
+      _attachedFileName = null;
+      _isUploadingFile = false;
+      _uploadProgress = 0.0;
+      _lampiranController.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5FA),
       appBar: AppBar(
         title: const Text(
-          'Draft & Pesan',
+          'Kelola Draf & Kirim Surat',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF1A1A2E),
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: const Color(0xFF302B63),
@@ -185,7 +224,7 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
                         draft.detailPoin,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade500,
+                          color: Colors.grey.shade50,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -517,7 +556,6 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
     );
   }
 
-
   // ===== BUILD TAB PESAN / INBOX =====
   Widget _buildPesanTab(BuildContext context) {
     final guruVm = Provider.of<GuruViewModel>(context);
@@ -610,16 +648,13 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
                 ),
                 const SizedBox(height: 16),
 
-                // Lampiran Dokumen (Optional)
-                TextFormField(
-                  controller: _lampiranController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama Lampiran (Opsional)',
-                    hintText: 'Contoh: bukti_terlambat.jpg / surat_sp1.pdf',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.attach_file),
-                  ),
+                // Unggah File Lampiran Realistis (Request #3)
+                const Text(
+                  'Lampiran Berkas (Opsional)',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                 ),
+                const SizedBox(height: 8),
+                _buildFileUploaderSection(),
                 const SizedBox(height: 24),
 
                 // Button Kirim
@@ -644,6 +679,173 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFileUploaderSection() {
+    if (_attachedFileName != null) {
+      // Tampilan File Ter-upload / Sedang Upload
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: _isUploadingFile
+                      ? const Color(0xFF302B63).withValues(alpha: 0.1)
+                      : const Color(0xFFE8F5E9),
+                  child: Icon(
+                    _isUploadingFile ? Icons.cloud_upload : Icons.insert_drive_file,
+                    color: _isUploadingFile ? const Color(0xFF302B63) : const Color(0xFF4CAF50),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _attachedFileName!,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        _isUploadingFile
+                            ? 'Sedang mengunggah berkas...'
+                            : 'Unggah berhasil • 2.4 MB',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: _isUploadingFile ? Colors.grey : const Color(0xFF4CAF50),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!_isUploadingFile)
+                  IconButton(
+                    icon: const Icon(Icons.cancel, color: Colors.grey, size: 20),
+                    onPressed: _removeAttachedFile,
+                  ),
+              ],
+            ),
+            if (_isUploadingFile) ...[
+              const SizedBox(height: 10),
+              LinearProgressIndicator(
+                value: _uploadProgress,
+                color: const Color(0xFF302B63),
+                backgroundColor: const Color(0xFF302B63).withValues(alpha: 0.1),
+                minHeight: 4,
+              ),
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '${(_uploadProgress * 100).toInt()}%',
+                  style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    // Tampilan Area Klik untuk Lampirkan Berkas
+    return GestureDetector(
+      onTap: () => _showFilePickerMockDialog(),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFF302B63).withValues(alpha: 0.2),
+            style: BorderStyle.solid,
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.cloud_upload_outlined, size: 36, color: const Color(0xFF302B63).withValues(alpha: 0.7)),
+            const SizedBox(height: 8),
+            const Text(
+              'Pilih File Lampiran Pembinaan',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF302B63)),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Mendukung JPG, PNG, PDF, DOCX (Maks. 5 MB)',
+              style: TextStyle(fontSize: 10, color: Colors.grey.shade400),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showFilePickerMockDialog() {
+    final mockFiles = [
+      'bukti_pelanggaran_terlambat.jpg',
+      'surat_pembinaan_tatap_muka.pdf',
+      'dokumentasi_prestasi_lomba.png',
+      'laporan_konseling_siswa.docx',
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Pilih Berkas Lampiran', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: mockFiles.length,
+              itemBuilder: (context, index) {
+                final file = mockFiles[index];
+                IconData fileIcon = Icons.insert_drive_file;
+                Color iconColor = Colors.grey;
+
+                if (file.endsWith('.jpg') || file.endsWith('.png')) {
+                  fileIcon = Icons.image;
+                  iconColor = Colors.blue;
+                } else if (file.endsWith('.pdf')) {
+                  fileIcon = Icons.picture_as_pdf;
+                  iconColor = Colors.redAccent;
+                } else if (file.endsWith('.docx')) {
+                  fileIcon = Icons.description;
+                  iconColor = Colors.blue.shade800;
+                }
+
+                return ListTile(
+                  leading: Icon(fileIcon, color: iconColor),
+                  title: Text(file, style: const TextStyle(fontSize: 13)),
+                  trailing: const Text('2.4 MB', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _simulateFileUpload(file);
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -802,13 +1004,16 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
         ),
       );
 
-      // Reset form
+      // Reset form & file uploader
       _titleController.clear();
       _bodyController.clear();
       _catatanController.clear();
       _lampiranController.clear();
       setState(() {
         _selectedRecipients.clear();
+        _attachedFileName = null;
+        _isUploadingFile = false;
+        _uploadProgress = 0.0;
       });
     }
   }

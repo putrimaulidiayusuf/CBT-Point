@@ -10,6 +10,7 @@ import '../widgets/discipline_indicator.dart';
 import '../login_view.dart';
 import 'qr_fullscreen_dialog.dart';
 import 'riwayat_poin_siswa_view.dart';
+import 'daftar_poin_siswa_view.dart';
 
 /// Halaman utama siswa (Dashboard)
 /// Berisi: Header, Info Siswa (QR + Poin), Jenis Poin, Status Disiplin, Inbox
@@ -76,6 +77,7 @@ class SiswaDashboardView extends StatelessWidget {
                             currentPoin: siswaVm.statusDisiplin,
                             label: siswaVm.labelDisiplin,
                             peringatan: siswaVm.peringatanDisiplin,
+                            onTap: () => _showDisciplineDetails(context, siswaVm),
                           ),
                           const SizedBox(height: 24),
 
@@ -108,63 +110,174 @@ class SiswaDashboardView extends StatelessWidget {
   /// Section informasi: QR Code + Total Apresiasi + Total Pelanggaran
   Widget _buildInfoSection(
       BuildContext context, String nis, String nama, SiswaViewModel vm) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // QR Code (kiri)
+          Expanded(
+            flex: 2,
+            child: GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => QrFullscreenDialog(nis: nis, namaSiswa: nama),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    QrImageView(
+                      data: nis,
+                      version: QrVersions.auto,
+                      size: 100,
+                      gapless: true,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Color(0xFF302B63),
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Color(0xFF302B63),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'QR Code Siswa',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      'Tap untuk perbesar',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Poin (kanan)
+          Expanded(
+            flex: 2,
+            child: Column(
+              children: [
+                Expanded(
+                  child: PointCard(
+                    label: 'Poin Apresiasi',
+                    totalPoin: vm.totalApresiasi,
+                    icon: Icons.emoji_events,
+                    color: const Color(0xFF4CAF50),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RiwayatPoinSiswaView(
+                            title: 'Riwayat Apresiasi',
+                            records: vm.riwayatApresiasi,
+                            isApresiasi: true,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: PointCard(
+                    label: 'Poin Pelanggaran',
+                    totalPoin: vm.totalPelanggaran,
+                    icon: Icons.warning_amber,
+                    color: Colors.redAccent,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RiwayatPoinSiswaView(
+                            title: 'Riwayat Pelanggaran',
+                            records: vm.riwayatPelanggaran,
+                            isApresiasi: false,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Section jenis poin: daftar apresiasi dan pelanggaran dari JSON
+  Widget _buildJenisPoinSection(BuildContext context, SiswaViewModel vm) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // QR Code (kiri)
+        // Button Apresiasi
         Expanded(
-          flex: 2,
           child: GestureDetector(
             onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) => QrFullscreenDialog(nis: nis, namaSiswa: nama),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DaftarPoinSiswaView(
+                    title: 'Daftar Apresiasi',
+                    items: vm.daftarApresiasi,
+                    themeColor: const Color(0xFF4CAF50),
+                  ),
+                ),
               );
             },
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF4CAF50).withValues(alpha: 0.2)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: const Color(0xFF4CAF50).withValues(alpha: 0.05),
                     blurRadius: 10,
-                    offset: const Offset(0, 3),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: Column(
                 children: [
-                  QrImageView(
-                    data: nis,
-                    version: QrVersions.auto,
-                    size: 120,
-                    gapless: true,
-                    eyeStyle: const QrEyeStyle(
-                      eyeShape: QrEyeShape.square,
-                      color: Color(0xFF302B63),
-                    ),
-                    dataModuleStyle: const QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.square,
-                      color: Color(0xFF302B63),
-                    ),
+                  const CircleAvatar(
+                    backgroundColor: Color(0xFFE8F5E9),
+                    child: Icon(Icons.star_rounded, color: Color(0xFF4CAF50)),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'QR Code Siswa',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Poin Apresiasi',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    'Tap untuk perbesar',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey.shade400,
-                    ),
+                    '${vm.daftarApresiasi.length} item',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
                   ),
                 ],
               ),
@@ -172,203 +285,197 @@ class SiswaDashboardView extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        // Poin (kanan atas + kanan bawah)
+        // Button Pelanggaran
         Expanded(
-          flex: 2,
-          child: Column(
-            children: [
-              PointCard(
-                label: 'Poin Apresiasi',
-                totalPoin: vm.totalApresiasi,
-                icon: Icons.emoji_events,
-                color: const Color(0xFF4CAF50),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => RiwayatPoinSiswaView(
-                        title: 'Riwayat Apresiasi',
-                        records: vm.riwayatApresiasi,
-                        isApresiasi: true,
-                      ),
-                    ),
-                  );
-                },
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DaftarPoinSiswaView(
+                    title: 'Daftar Pelanggaran',
+                    items: vm.daftarPelanggaran,
+                    themeColor: Colors.redAccent,
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.2)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.redAccent.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              PointCard(
-                label: 'Poin Pelanggaran',
-                totalPoin: vm.totalPelanggaran,
-                icon: Icons.warning_amber,
-                color: Colors.redAccent,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => RiwayatPoinSiswaView(
-                        title: 'Riwayat Pelanggaran',
-                        records: vm.riwayatPelanggaran,
-                        isApresiasi: false,
-                      ),
-                    ),
-                  );
-                },
+              child: Column(
+                children: [
+                  const CircleAvatar(
+                    backgroundColor: Color(0xFFFFEBEE),
+                    child: Icon(Icons.gavel_rounded, color: Colors.redAccent),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Poin Pelanggaran',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${vm.daftarPelanggaran.length} item',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  /// Section jenis poin: daftar apresiasi dan pelanggaran dari JSON
-  Widget _buildJenisPoinSection(BuildContext context, SiswaViewModel vm) {
-    return Column(
-      children: [
-        // Daftar Apresiasi
-        _buildJenisPoinCard(
-          context: context,
-          title: 'Daftar Apresiasi',
-          icon: Icons.star,
-          color: const Color(0xFF4CAF50),
-          items: vm.daftarApresiasi,
-        ),
-        const SizedBox(height: 12),
-        // Daftar Pelanggaran
-        _buildJenisPoinCard(
-          context: context,
-          title: 'Daftar Pelanggaran',
-          icon: Icons.gavel,
-          color: Colors.redAccent,
-          items: vm.daftarPelanggaran,
-        ),
-      ],
-    );
-  }
+  void _showDisciplineDetails(BuildContext context, SiswaViewModel vm) {
+    final score = vm.statusDisiplin;
+    final color = score >= 90
+        ? const Color(0xFF4CAF50)
+        : (score >= 75 ? Colors.teal : (score >= 50 ? Colors.amber.shade700 : (score >= 0 ? Colors.orange.shade800 : Colors.red.shade700)));
 
-  Widget _buildJenisPoinCard({
-    required BuildContext context,
-    required String title,
-    required IconData icon,
-    required Color color,
-    required List<JenisCatatan> items,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
       ),
-      child: ExpansionTile(
-        leading: Icon(icon, color: color),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: color,
-            fontSize: 15,
-          ),
-        ),
-        subtitle: Text(
-          '${items.length} item',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        children: items.map((item) {
-          return ListTile(
-            onTap: () => _showDetailPoin(context, item, color),
-            leading: CircleAvatar(
-              radius: 16,
-              backgroundColor: color.withValues(alpha: 0.1),
-              child: Text(
-                '${item.poin}',
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Analisis Indeks Kedisiplinan',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      vm.labelDisiplin,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Indeks Kedisiplinan dihitung secara dinamis menggabungkan poin apresiasi (positif) dan poin pelanggaran (negatif) dari basis poin standar (100).',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 20),
+              
+              // Breakdown Box
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  children: [
+                    _breakdownRow('Skor Basis Standar', '+100', Colors.black87),
+                    const Divider(height: 16),
+                    _breakdownRow('Total Poin Apresiasi', '+${vm.totalApresiasi}', const Color(0xFF4CAF50)),
+                    const Divider(height: 16),
+                    _breakdownRow('Total Poin Pelanggaran', '-${vm.totalPelanggaran}', Colors.redAccent),
+                    const Divider(height: 20, thickness: 1.5),
+                    _breakdownRow('Net Indeks Kedisiplinan', '$score', color, isBold: true),
+                  ],
                 ),
               ),
-            ),
-            title: Text(item.nama, style: const TextStyle(fontSize: 14)),
-            subtitle: Text(
-              item.deskripsi,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 18),
-          );
-        }).toList(),
-      ),
+              
+              // Critical homeroom check
+              if (score <= -100) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.gavel, color: Colors.redAccent, size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'PENTING: Batas Sanksi Tercapai (-100)',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.red),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Indeks disiplin Anda telah mencapai nilai sanksi berat. Harap segera meminta keringanan/pembinaan ke Wali Kelas secara offline.',
+                              style: TextStyle(fontSize: 12, color: Colors.red.shade900, height: 1.4),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  void _showDetailPoin(BuildContext context, JenisCatatan item, Color color) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: color.withValues(alpha: 0.1),
-              child: Text(
-                '${item.poin}',
-                style: TextStyle(color: color, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(child: Text(item.nama, style: const TextStyle(fontSize: 16))),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _detailRow('Nama', item.nama),
-            _detailRow('Detail', item.deskripsi),
-            _detailRow('Jenis', item.tipe == 'prestasi' ? 'Apresiasi' : 'Pelanggaran'),
-            _detailRow('Poin', item.poin.toString()),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tutup'),
+  Widget _breakdownRow(String label, String value, Color valueColor, {bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            fontSize: 13,
+            color: Colors.grey.shade700,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _detailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 60,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
-                fontSize: 13,
-              ),
-            ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: isBold ? 15 : 13,
+            color: valueColor,
           ),
-          const Text(': '),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 13))),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

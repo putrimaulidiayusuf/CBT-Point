@@ -3,12 +3,8 @@ import 'package:provider/provider.dart';
 import '../../view_models/auth_view_model.dart';
 import '../../view_models/guru_view_model.dart';
 import 'guru_dashboard_view.dart';
-import 'guru_riwayat_view.dart';
-import 'guru_draft_view.dart';
-import 'guru_scan_qr_view.dart';
 
-/// Container Utama Guru (dengan BottomNavigationBar)
-/// Berisi 4 tab: Dashboard, Riwayat, Draft, dan Scan QR
+/// Container Utama Guru (Dashboard)
 class GuruMainView extends StatefulWidget {
   const GuruMainView({super.key});
 
@@ -17,15 +13,6 @@ class GuruMainView extends StatefulWidget {
 }
 
 class _GuruMainViewState extends State<GuruMainView> {
-  int _currentIndex = 0;
-
-  final List<Widget> _tabs = const [
-    GuruDashboardView(),
-    GuruRiwayatView(),
-    GuruDraftView(),
-    GuruScanQrView(),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -47,10 +34,7 @@ class _GuruMainViewState extends State<GuruMainView> {
     return Scaffold(
       body: Stack(
         children: [
-          IndexedStack(
-            index: _currentIndex,
-            children: _tabs,
-          ),
+          const GuruDashboardView(),
           if (guruVm.isLoading)
             Container(
               color: Colors.black.withValues(alpha: 0.3),
@@ -76,43 +60,6 @@ class _GuruMainViewState extends State<GuruMainView> {
                 ),
               ),
             ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF302B63),
-        unselectedItemColor: Colors.grey.shade500,
-        backgroundColor: Colors.white,
-        elevation: 8,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        unselectedLabelStyle: const TextStyle(fontSize: 11),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            activeIcon: Icon(Icons.history),
-            label: 'Riwayat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_outlined),
-            activeIcon: Icon(Icons.assignment),
-            label: 'Draft',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner_outlined),
-            activeIcon: Icon(Icons.qr_code_scanner),
-            label: 'Scan QR',
-          ),
         ],
       ),
     );

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../../models/jenis_catatan_model.dart';
+import '../../models/user_model.dart';
 import '../../view_models/guru_view_model.dart';
+import '../widgets/search_field.dart';
 
-/// Tab Scan QR Guru
+/// Halaman Detail Scan QR Guru
 /// Fitur: scan QR code siswa (NIS), deteksi info siswa, pilih jenis poin,
 /// scan beberapa siswa sekaligus, berikan poin langsung atau simpan draf.
-/// Menyediakan fallback input manual jika kamera tidak tersedia.
+/// Menyediakan pencarian multi-field (nama, kelas, NIS) dengan layout kotak/grid hasil pencarian.
 class GuruScanQrView extends StatefulWidget {
   const GuruScanQrView({super.key});
 
@@ -19,43 +21,48 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
   final MobileScannerController _scannerController = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
   );
-  final _manualNisController = TextEditingController();
+  final _searchController = TextEditingController();
+  List<Siswa> _searchResults = [];
   bool _isScannerActive = true;
+
+  // Status scan
+  String _scanStatus = 'Menunggu pemindaian kartu QR siswa...';
+  bool? _scanSuccess;
 
   @override
   void dispose() {
     _scannerController.dispose();
-    _manualNisController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   void _handleQrDetected(String code, GuruViewModel vm) {
     final siswa = vm.getSiswaByNis(code.trim());
-    if (siswa != null) {
-      if (vm.selectedSiswa.any((s) => s.nis == siswa.nis)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${siswa.nama} sudah ada di daftar penerima'),
-            backgroundColor: Colors.orange,
-          ),
-        );
+    setState(() {
+      if (siswa != null) {
+        if (vm.selectedSiswa.any((s) => s.nis == siswa.nis)) {
+          _scanStatus = 'Siswa "${siswa.nama}" sudah terdaftar di penerima.';
+          _scanSuccess = true;
+        } else {
+          vm.addSiswaPenerima(siswa);
+          _scanStatus = 'Scan Berhasil! "${siswa.nama}" (${siswa.kelas}) ditambahkan.';
+          _scanSuccess = true;
+        }
       } else {
-        vm.addSiswaPenerima(siswa);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Berhasil menambahkan ${siswa.nama}'),
-            backgroundColor: const Color(0xFF4CAF50),
-          ),
-        );
+        _scanStatus = 'Scan Gagal! Kode QR "$code" tidak dikenal. Data tidak disimpan.';
+        _scanSuccess = false;
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Siswa dengan NIS "$code" tidak ditemukan'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    }
+    });
+  }
+
+  void _searchSiswa(String query, GuruViewModel vm) {
+    setState(() {
+      if (query.isEmpty) {
+        _searchResults = [];
+      } else {
+        _searchResults = vm.searchSiswa(query);
+      }
+    });
   }
 
   @override
@@ -70,13 +77,16 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
       backgroundColor: const Color(0xFFF5F5FA),
       appBar: AppBar(
         title: const Text(
-          'Scan QR Code Siswa',
+          'Pemindai QR Code Siswa',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF1A1A2E),
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -114,6 +124,13 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
                 decoration: BoxDecoration(
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
@@ -137,15 +154,15 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
                             children: [
                               const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 48),
                               const SizedBox(height: 8),
-                              Text(
+                              const Text(
                                 'Kamera tidak dapat diakses',
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Gunakan input manual di bawah jika di simulator.',
+                                'Gunakan kolom pencarian di bawah jika di simulator.',
                                 style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
-                                textAlign: Alignment.center as TextAlign?,
+                                textAlign: TextAlign.center,
                               ),
                             ],
                           ),
@@ -177,7 +194,10 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
                 ),
               ),
 
-            // Fallback Input Manual
+            // Indikator Status Scan (Request #2)
+            _buildScanStatusCard(),
+
+            // Search Bar untuk Pencarian Multi-Field (Request #1)
             Container(
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -186,36 +206,111 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.grey.shade200),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _manualNisController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        hintText: 'Input NIS manual (e.g. 123456)',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  const Text(
+                    'Cari Siswa Manual (Nama / Kelas / NIS)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  SearchField(
+                    controller: _searchController,
+                    hintText: 'Ketik nama, kelas, atau NIS siswa...',
+                    onChanged: (val) => _searchSiswa(val, guruVm),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              _searchSiswa('', guruVm);
+                            },
+                          )
+                        : null,
+                  ),
+                  const SizedBox(height: 12),
+                  // Grid hasil pencarian kotak (Request #1)
+                  if (_searchResults.isNotEmpty) ...[
+                    const Divider(),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Pilih Siswa:',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 2.2,
                       ),
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        final siswa = _searchResults[index];
+                        final isSelected = guruVm.selectedSiswa.any((s) => s.nis == siswa.nis);
+                        return Card(
+                          elevation: 0,
+                          margin: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: isSelected ? const Color(0xFF302B63) : Colors.grey.shade200,
+                              width: isSelected ? 1.5 : 1,
+                            ),
+                          ),
+                          color: isSelected ? const Color(0xFF302B63).withValues(alpha: 0.05) : Colors.white,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              if (isSelected) {
+                                guruVm.removeSiswaPenerima(siswa);
+                              } else {
+                                guruVm.addSiswaPenerima(siswa);
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          siswa.nama,
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Kelas: ${siswa.kelas}',
+                                          style: const TextStyle(fontSize: 9, color: Colors.grey),
+                                        ),
+                                        Text(
+                                          'NIS: ${siswa.nis}',
+                                          style: const TextStyle(fontSize: 9, color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    isSelected ? Icons.check_circle : Icons.add_circle_outline,
+                                    color: isSelected ? const Color(0xFF302B63) : Colors.grey,
+                                    size: 18,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      final nis = _manualNisController.text.trim();
-                      if (nis.isNotEmpty) {
-                        _handleQrDetected(nis, guruVm);
-                        _manualNisController.clear();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF302B63),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text('Tambah'),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -232,6 +327,49 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
         ),
       ),
       bottomNavigationBar: _buildBottomActionBar(context, guruVm, selectedPoin, color),
+    );
+  }
+
+  Widget _buildScanStatusCard() {
+    Color cardColor = Colors.grey.shade100;
+    Color borderAndTextColor = Colors.grey.shade600;
+    IconData statusIcon = Icons.info_outline;
+
+    if (_scanSuccess == true) {
+      cardColor = const Color(0xFFE8F5E9);
+      borderAndTextColor = const Color(0xFF4CAF50);
+      statusIcon = Icons.check_circle_outline;
+    } else if (_scanSuccess == false) {
+      cardColor = const Color(0xFFFFEBEE);
+      borderAndTextColor = Colors.redAccent;
+      statusIcon = Icons.error_outline;
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderAndTextColor.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(statusIcon, color: borderAndTextColor, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _scanStatus,
+              style: TextStyle(
+                fontSize: 12,
+                color: borderAndTextColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -323,11 +461,11 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
               children: [
                 const Text('Pilih Poin', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                TabBar(
-                  labelColor: const Color(0xFF302B63),
-                  indicatorColor: const Color(0xFF302B63),
+                const TabBar(
+                  labelColor: Color(0xFF302B63),
+                  indicatorColor: Color(0xFF302B63),
                   unselectedLabelColor: Colors.grey,
-                  tabs: const [
+                  tabs: [
                     Tab(text: 'Apresiasi'),
                     Tab(text: 'Pelanggaran'),
                   ],
@@ -408,7 +546,7 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('2. Daftar Siswa Ter-scan *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text('2. Daftar Siswa Terpilih *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               if (vm.selectedSiswa.isNotEmpty)
                 TextButton(
                   onPressed: () => vm.clearSelectedSiswa(),
@@ -427,7 +565,7 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
                     Icon(Icons.qr_code_scanner, size: 40, color: Colors.grey.shade300),
                     const SizedBox(height: 6),
                     Text(
-                      'Pindai QR code siswa atau input manual di atas.',
+                      'Pindai QR code siswa atau input pencarian manual di atas.',
                       style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
                       textAlign: TextAlign.center,
                     ),
@@ -489,10 +627,14 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Berhasil menyimpan draft!'),
+                          content: Text('Berhasil menyimpan draf!'),
                           backgroundColor: Color(0xFF302B63),
                         ),
                       );
+                      setState(() {
+                        _scanStatus = 'Menunggu pemindaian kartu QR siswa...';
+                        _scanSuccess = null;
+                      });
                     },
               icon: const Icon(Icons.save_outlined, size: 16),
               label: const Text('Simpan Draft'),
@@ -516,6 +658,10 @@ class _GuruScanQrViewState extends State<GuruScanQrView> {
                           backgroundColor: themeColor,
                         ),
                       );
+                      setState(() {
+                        _scanStatus = 'Menunggu pemindaian kartu QR siswa...';
+                        _scanSuccess = null;
+                      });
                     },
               icon: const Icon(Icons.check, size: 16),
               label: const Text('Berikan Poin'),

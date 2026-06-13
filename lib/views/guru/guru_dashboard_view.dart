@@ -7,9 +7,12 @@ import '../widgets/custom_header.dart';
 import '../widgets/search_field.dart';
 import '../login_view.dart';
 import 'tambah_penerima_view.dart';
+import 'guru_scan_qr_view.dart';
+import 'guru_draft_view.dart';
+import 'guru_riwayat_view.dart';
 
-/// Tab Dashboard Guru
-/// Menampilkan: Header Info Guru, Pencarian Jenis Poin, dan Daftar Apresiasi/Pelanggaran
+/// Halaman utama Guru (Dashboard)
+/// Menampilkan: Header, Menu Utama (Scan QR, Draf & Pesan, Riwayat), Pilihan Cepat Jenis Poin
 class GuruDashboardView extends StatefulWidget {
   const GuruDashboardView({super.key});
 
@@ -82,23 +85,30 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Berikan Poin Siswa',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1A1A2E),
-                            ),
+                          // ===== MENU NAVIGASI GURU =====
+                          _buildSectionTitle('Menu Utama'),
+                          const SizedBox(height: 12),
+                          _buildMenuGrid(context),
+                          const SizedBox(height: 24),
+
+                          // ===== SECTION JENIS POIN =====
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildSectionTitle('Pemberian Poin Cepat'),
+                              if (_searchQuery.isNotEmpty)
+                                TextButton(
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {
+                                      _searchQuery = '';
+                                    });
+                                  },
+                                  child: const Text('Reset', style: TextStyle(fontSize: 12)),
+                                ),
+                            ],
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Pilih salah satu jenis poin di bawah ini untuk mencari siswa penerima.',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
 
                           // Search Bar
                           SearchField(
@@ -121,11 +131,11 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
                                   )
                                 : null,
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 20),
 
                           // Section Apresiasi
-                          _buildSectionTitle('Daftar Apresiasi (Poin Positif)'),
-                          const SizedBox(height: 10),
+                          _buildSubSectionTitle('Daftar Apresiasi (Poin Positif)'),
+                          const SizedBox(height: 8),
                           if (filteredApresiasi.isEmpty)
                             _buildEmptyState('Apresiasi tidak ditemukan')
                           else
@@ -141,11 +151,11 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
                                 );
                               },
                             ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 20),
 
                           // Section Pelanggaran
-                          _buildSectionTitle('Daftar Pelanggaran (Poin Negatif)'),
-                          const SizedBox(height: 10),
+                          _buildSubSectionTitle('Daftar Pelanggaran (Poin Negatif)'),
+                          const SizedBox(height: 8),
                           if (filteredPelanggaran.isEmpty)
                             _buildEmptyState('Pelanggaran tidak ditemukan')
                           else
@@ -176,7 +186,18 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
     return Text(
       title,
       style: const TextStyle(
-        fontSize: 15,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF1A1A2E),
+      ),
+    );
+  }
+
+  Widget _buildSubSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 14,
         fontWeight: FontWeight.bold,
         color: Color(0xFF302B63),
       ),
@@ -186,7 +207,7 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
   Widget _buildEmptyState(String text) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -196,6 +217,117 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
         child: Text(
           text,
           style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuGrid(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            // Menu Scan QR
+            Expanded(
+              child: _buildMenuCard(
+                context: context,
+                title: 'Scan QR Siswa',
+                subtitle: 'Pindai kartu siswa',
+                icon: Icons.qr_code_scanner,
+                color: const Color(0xFF302B63),
+                destination: const GuruScanQrView(),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Menu Draf & Pesan
+            Expanded(
+              child: _buildMenuCard(
+                context: context,
+                title: 'Draf & Surat',
+                subtitle: 'Kelola draf & pesan',
+                icon: Icons.assignment_outlined,
+                color: const Color(0xFF6C63FF),
+                destination: const GuruDraftView(),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        // Menu Riwayat (Full Width)
+        _buildMenuCard(
+          context: context,
+          title: 'Riwayat Pemberian Poin',
+          subtitle: 'Histori penugasan poin oleh Anda',
+          icon: Icons.history,
+          color: Colors.teal.shade700,
+          destination: const GuruRiwayatView(),
+          isFullWidth: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required Widget destination,
+    bool isFullWidth = false,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => destination),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: color.withValues(alpha: 0.1),
+                  child: Icon(icon, color: color),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey.shade400),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -214,7 +346,7 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
         side: BorderSide(color: Colors.grey.shade200),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         leading: CircleAvatar(
           radius: 20,
           backgroundColor: color.withValues(alpha: 0.1),
@@ -223,7 +355,7 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
             style: TextStyle(
               color: color,
               fontWeight: FontWeight.bold,
-              fontSize: 14,
+              fontSize: 13,
             ),
           ),
         ),
@@ -231,20 +363,22 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
           item.nama,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 13,
             color: Color(0xFF1A1A2E),
           ),
         ),
         subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4.0),
+          padding: const EdgeInsets.only(top: 2.0),
           child: Text(
             item.deskripsi,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         trailing: Icon(
           Icons.arrow_forward_ios,
-          size: 14,
+          size: 13,
           color: Colors.grey.shade400,
         ),
         onTap: () {
