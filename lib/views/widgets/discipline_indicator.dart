@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-
-/// Widget reusable untuk indikator status disiplin siswa
-/// Menampilkan progress bar dan peringatan jika diperlukan
-/// Mendukung tap/click untuk melihat rincian detail
+import 'glass_container.dart';
 
 class DisciplineIndicator extends StatelessWidget {
   final int currentPoin;
@@ -22,113 +19,131 @@ class DisciplineIndicator extends StatelessWidget {
 
   Color _getColor() {
     final score = currentPoin;
-    if (score >= 90) return const Color(0xFF4CAF50); // Hijau Sangat Baik
-    if (score >= 75) return Colors.teal;             // Teal Baik
-    if (score >= 50) return Colors.amber.shade700;   // Amber Cukup
-    if (score >= 0) return Colors.orange.shade800;   // Orange Kurang
-    return Colors.red.shade700;                     // Merah Peringatan / Kritis
+    if (score >= 50) return const Color(0xFF00FF87); // Neon Green
+    if (score > 0) return const Color(0xFF00F2FE);  // Neon Cyan
+    if (score == 0) return const Color(0xFFFFB300); // Neon Gold/Amber
+    if (score > -50) return const Color(0xFFFF8C00); // Neon Orange
+    return const Color(0xFFFF2E93);                 // Neon Pink/Red
   }
 
   IconData _getIcon() {
     final score = currentPoin;
-    if (score >= 75) return Icons.check_circle_outline;
-    if (score >= 50) return Icons.info_outline;
-    if (score >= 0) return Icons.warning_amber;
-    return Icons.dangerous_outlined;
+    if (score > 0) return Icons.verified_user_rounded;
+    if (score == 0) return Icons.info_outline_rounded;
+    return Icons.gpp_maybe_rounded;
   }
 
   @override
   Widget build(BuildContext context) {
     final color = _getColor();
-    // Progress bar mewakili nilai 0 - 100+
-    final double progress = (currentPoin / 100.0).clamp(0.0, 1.0);
+    // Map score (-100 to 100) to 0.0 to 1.0 progress bar
+    final double progress = ((currentPoin + 100) / 200.0).clamp(0.0, 1.0);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: color.withValues(alpha: 0.3),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+    return GlassContainer(
+      padding: const EdgeInsets.all(20),
+      color: Colors.white.withValues(alpha: 0.04),
+      borderColor: Colors.white.withValues(alpha: 0.08),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(_getIcon(), color: color, size: 24),
-                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(_getIcon(), color: color, size: 24),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    'Status Disiplin (Poin Gabungan)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Indeks Kedisiplinan',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        'Gabungan Poin Real-time',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
                   ),
                   child: Text(
                     label,
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
                       color: color,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            // Progress bar
+            const SizedBox(height: 20),
+            // Glassy Progress Bar
             Stack(
               children: [
                 Container(
-                  height: 10,
+                  height: 12,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.white.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                 ),
                 AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  height: 10,
-                  width: (MediaQuery.of(context).size.width - 64) * progress,
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeOutBack,
+                  height: 12,
+                  width: (MediaQuery.of(context).size.width - 72) * progress,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color.withValues(alpha: 0.6), color],
+                      colors: [
+                        color.withValues(alpha: 0.5),
+                        color,
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
                     ),
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.45),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Skor Indeks: $currentPoin',
+                  'Skor Anda: $currentPoin Poin',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -136,26 +151,29 @@ class DisciplineIndicator extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${(progress * 100).toInt()}% Ketertiban',
+                  'Batas Kritis: -100 Poin',
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade600,
+                    fontSize: 11,
+                    color: Colors.white.withValues(alpha: 0.4),
                   ),
                 ),
               ],
             ),
             if (onTap != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.touch_app, size: 12, color: Colors.grey.shade400),
-                    const SizedBox(width: 4),
+                    Icon(Icons.analytics_outlined, size: 14, color: Colors.white.withValues(alpha: 0.4)),
+                    const SizedBox(width: 6),
                     Text(
-                      'Tap untuk analisis detail',
-                      style: TextStyle(fontSize: 10, color: Colors.grey.shade400),
+                      'Ketuk untuk melihat detail grafik & sanksi',
+                      style: TextStyle(
+                        fontSize: 11, 
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -163,23 +181,23 @@ class DisciplineIndicator extends StatelessWidget {
             ],
             // Peringatan
             if (peringatan != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: color.withValues(alpha: 0.2)),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: color.withValues(alpha: 0.2), width: 1.2),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(
-                      currentPoin <= -100 ? Icons.error : Icons.warning_amber,
+                      currentPoin <= -100 ? Icons.gavel_rounded : Icons.report_problem_rounded,
                       color: color,
-                      size: 20,
+                      size: 22,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         peringatan!,

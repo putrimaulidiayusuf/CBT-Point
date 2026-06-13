@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-/// Widget reusable untuk search bar
-/// Digunakan di berbagai halaman (riwayat guru, cari siswa, jenis poin)
+import 'glass_container.dart';
 
 class SearchField extends StatelessWidget {
   final String hintText;
@@ -19,29 +17,30 @@ class SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
+    return GlassContainer(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      borderRadius: 16,
+      color: Colors.white.withValues(alpha: 0.04),
+      borderColor: Colors.white.withValues(alpha: 0.08),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+        cursorColor: const Color(0xFF6C63FF),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            color: Colors.white.withValues(alpha: 0.45),
+            fontSize: 14,
           ),
           prefixIcon: Icon(
-            Icons.search,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            Icons.search_rounded,
+            color: Colors.white.withValues(alpha: 0.45),
+            size: 20,
           ),
           suffixIcon: suffixIcon,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),
     );

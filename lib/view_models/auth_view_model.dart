@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
-import '../services/auth_service.dart';
+import '../repositories/auth_repository.dart';
 
 /// ViewModel untuk autentikasi login
 /// Mengelola state login, logout, dan session pengguna
 
 class AuthViewModel extends ChangeNotifier {
-  final AuthService _authService = AuthService();
+  final AuthRepository _authRepo = AuthRepository();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -31,7 +31,7 @@ class AuthViewModel extends ChangeNotifier {
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      final result = _authService.login(nama, password);
+      final result = await _authRepo.login(nama, password);
 
       if (result != null) {
         _userRole = result['role'];

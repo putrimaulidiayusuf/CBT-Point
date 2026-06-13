@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import '../models/jenis_catatan_model.dart';
 import '../models/point_record_model.dart';
 import '../models/message_model.dart';
-import '../services/local_data_service.dart';
+import '../repositories/point_record_repository.dart';
+import '../repositories/jenis_catatan_repository.dart';
+import '../repositories/message_repository.dart';
 
 /// ViewModel untuk halaman siswa
 /// Mengelola data poin, riwayat, status disiplin, jenis poin, dan inbox
 
 class SiswaViewModel extends ChangeNotifier {
-  final LocalDataService _localDataService = LocalDataService();
+  final PointRecordRepository _pointRepo = PointRecordRepository();
+  final JenisCatatanRepository _jenisCatatanRepo = JenisCatatanRepository();
+  final MessageRepository _messageRepo = MessageRepository();
 
   String _nis = '';
   bool _isLoading = false;
@@ -29,18 +33,18 @@ class SiswaViewModel extends ChangeNotifier {
   List<JenisCatatan> get daftarPelanggaran => _daftarPelanggaran;
   List<Message> get inbox => _inbox;
 
-  /// Status disiplin berdasarkan gabungan apresiasi (+) dan pelanggaran (-)
-  int get statusDisiplin => 100 - _totalPelanggaran + _totalApresiasi;
+  /// Status disiplin berdasarkan selisih apresiasi (+) dan pelanggaran (-) dengan basis 0
+  int get statusDisiplin => _totalApresiasi - _totalPelanggaran;
 
   /// Pesan peringatan berdasarkan status disiplin
   String? get peringatanDisiplin {
     final score = statusDisiplin;
     if (score <= -100) {
       return '⚠️ Sanksi Berat: Indeks disiplin Anda telah mencapai batas kritis -100 atau kurang. Harap segera meminta keringanan/pembinaan ke Wali Kelas secara offline!';
-    } else if (score <= 0) {
-      return 'Peringatan Keras: Indeks disiplin Anda berada di bawah nol. Harap segera memperbaiki perilaku dan mengumpulkan poin apresiasi.';
-    } else if (score <= 50) {
-      return 'Peringatan: Indeks disiplin Anda kurang dari 50%. Harap kurangi pelanggaran agar tidak mencapai batas sanksi.';
+    } else if (score <= -50) {
+      return 'Peringatan Keras: Indeks disiplin Anda telah melewati batas -50. Segera perbaiki perilaku Anda.';
+    } else if (score < 0) {
+      return 'Peringatan: Indeks disiplin Anda bernilai negatif. Harap kurangi pelanggaran agar tidak mencapai batas sanksi.';
     }
     return null;
   }
@@ -48,10 +52,10 @@ class SiswaViewModel extends ChangeNotifier {
   /// Label status disiplin
   String get labelDisiplin {
     final score = statusDisiplin;
-    if (score >= 90) return 'Sangat Baik';
-    if (score >= 75) return 'Baik';
-    if (score >= 50) return 'Cukup';
-    if (score >= 0) return 'Kurang';
+    if (score >= 50) return 'Sangat Baik';
+    if (score > 0) return 'Baik';
+    if (score == 0) return 'Cukup / Netral';
+    if (score > -50) return 'Kurang';
     if (score > -100) return 'Peringatan Keras';
     return 'Batas Kritis / Sanksi';
   }
@@ -97,7 +101,7 @@ class SiswaViewModel extends ChangeNotifier {
 
   /// Load riwayat poin siswa dan hitung total
   Future<void> _loadRiwayatPoin() async {
-    final allRecords = await _localDataService.getPointRecordsBySiswa(_nis);
+    final allRecords = await _pointRepo.getPointRecordsBySiswa(_nis);
     _riwayatApresiasi =
         allRecords.where((r) => r.jenisPoin == 'prestasi').toList();
     _riwayatPelanggaran =
@@ -116,12 +120,12 @@ class SiswaViewModel extends ChangeNotifier {
 
   /// Load daftar jenis poin dari JSON
   Future<void> _loadJenisPoin() async {
-    _daftarApresiasi = await _localDataService.loadJenisPoin('prestasi');
-    _daftarPelanggaran = await _localDataService.loadJenisPoin('pelanggaran');
+    _daftarApresiasi = await _jenisCatatanRepo.getJenisCatatan('prestasi');
+    _daftarPelanggaran = await _jenisCatatanRepo.getJenisCatatan('pelanggaran');
   }
 
   /// Load inbox pesan
   Future<void> _loadInbox() async {
-    _inbox = await _localDataService.getMessagesBySiswa(_nis);
+    _inbox = await _messageRepo.loadMessagesBySiswa(_nis);
   }
 }

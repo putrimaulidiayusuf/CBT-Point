@@ -1,8 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../models/jenis_catatan_model.dart';
 import '../widgets/search_field.dart';
+import '../widgets/glass_container.dart';
 
-/// Halaman detail untuk melihat daftar poin apresiasi atau pelanggaran
 class DaftarPoinSiswaView extends StatefulWidget {
   final String title;
   final List<JenisCatatan> items;
@@ -39,122 +40,174 @@ class _DaftarPoinSiswaViewState extends State<DaftarPoinSiswaView> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5FA),
-      appBar: AppBar(
-        title: Text(
-          widget.title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      backgroundColor: const Color(0xFF0F0C29),
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: ClipRRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: AppBar(
+              title: Text(
+                widget.title,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+              ),
+              backgroundColor: const Color(0xFF0F0C29).withValues(alpha: 0.7),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: Border(
+                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 1.5),
+              ),
+            ),
+          ),
         ),
-        backgroundColor: widget.themeColor.withValues(alpha: 0.1),
-        foregroundColor: widget.themeColor,
-        elevation: 0,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Search Field
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SearchField(
-              controller: _searchController,
-              hintText: 'Cari jenis poin di sini...',
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          _searchQuery = '';
-                        });
-                      },
-                    )
-                  : null,
+          // Background Glow
+          Positioned(
+            top: 100,
+            left: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.themeColor.withValues(alpha: 0.08),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
+                child: Container(color: Colors.transparent),
+              ),
             ),
           ),
 
-          // Items List
-          Expanded(
-            child: filteredItems.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search_off_outlined, size: 64, color: Colors.grey.shade300),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Poin tidak ditemukan',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Coba cari dengan kata kunci lain.',
-                          style: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: filteredItems.length,
-                    itemBuilder: (context, index) {
-                      final item = filteredItems[index];
-                      return Card(
-                        elevation: 0,
-                        margin: const EdgeInsets.only(bottom: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: Colors.grey.shade200),
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: CircleAvatar(
-                            radius: 20,
-                            backgroundColor: widget.themeColor.withValues(alpha: 0.1),
-                            child: Text(
-                              '${item.poin}',
-                              style: TextStyle(
-                                color: widget.themeColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          title: Text(
-                            item.nama,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Color(0xFF1A1A2E),
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Text(
-                              item.deskripsi,
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey.shade400),
-                          onTap: () => _showDetailPoin(context, item, widget.themeColor),
-                        ),
-                      );
+          SafeArea(
+            child: Column(
+              children: [
+                // Search Field
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: SearchField(
+                    controller: _searchController,
+                    hintText: 'Cari jenis poin...',
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
                     },
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear_rounded, color: Colors.white.withValues(alpha: 0.6)),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _searchQuery = '';
+                              });
+                            },
+                          )
+                        : null,
                   ),
+                ),
+
+                // Items List
+                Expanded(
+                  child: filteredItems.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.04),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.search_off_rounded, size: 56, color: Colors.white.withValues(alpha: 0.3)),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Poin tidak ditemukan',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Coba cari dengan kata kunci lain.',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.45),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          itemCount: filteredItems.length,
+                          itemBuilder: (context, index) {
+                            final item = filteredItems[index];
+                            return _buildItemCard(context, item);
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildItemCard(BuildContext context, JenisCatatan item) {
+    return GlassContainer(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      color: Colors.white.withValues(alpha: 0.03),
+      borderColor: Colors.white.withValues(alpha: 0.08),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        leading: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: widget.themeColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: widget.themeColor.withValues(alpha: 0.3)),
+          ),
+          child: Center(
+            child: Text(
+              '${item.poin}',
+              style: TextStyle(
+                color: widget.themeColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ),
+        title: Text(
+          item.nama,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Colors.white,
+          ),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: Text(
+            item.deskripsi,
+            style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.55), height: 1.3),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        trailing: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white.withValues(alpha: 0.35)),
+        onTap: () => _showDetailPoin(context, item, widget.themeColor),
       ),
     );
   }
@@ -162,61 +215,92 @@ class _DaftarPoinSiswaViewState extends State<DaftarPoinSiswaView> {
   void _showDetailPoin(BuildContext context, JenisCatatan item, Color color) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: color.withValues(alpha: 0.1),
-              child: Text(
-                '${item.poin}',
-                style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      builder: (_) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF151233).withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 1.5),
+          ),
+          title: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
+                ),
+                child: Center(
+                  child: Text(
+                    '${item.poin}',
+                    style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  item.nama,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              _detailRow('Nama', item.nama),
+              const Divider(color: Colors.white10),
+              _detailRow('Deskripsi', item.deskripsi),
+              const Divider(color: Colors.white10),
+              _detailRow('Kategori', item.tipe == 'prestasi' ? 'Apresiasi' : 'Pelanggaran'),
+              const Divider(color: Colors.white10),
+              _detailRow('Nilai Poin', '${item.poin} Poin'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Tutup',
+                style: TextStyle(color: Color(0xFF6C63FF), fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(child: Text(item.nama, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _detailRow('Nama', item.nama),
-            _detailRow('Detail', item.deskripsi),
-            _detailRow('Kategori', item.tipe == 'prestasi' ? 'Apresiasi' : 'Pelanggaran'),
-            _detailRow('Poin', item.poin.toString()),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tutup'),
-          ),
-        ],
       ),
     );
   }
 
   Widget _detailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 70,
+            width: 80,
             child: Text(
               label,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+                color: Colors.white.withValues(alpha: 0.45),
                 fontSize: 13,
               ),
             ),
           ),
-          const Text(': '),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 13, color: Colors.black87))),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.85), height: 1.4),
+            ),
+          ),
         ],
       ),
     );

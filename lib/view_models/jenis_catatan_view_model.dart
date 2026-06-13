@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/jenis_catatan_model.dart';
-import '../services/api_service.dart';
+import '../repositories/jenis_catatan_repository.dart';
 
 class JenisCatatanViewModel extends ChangeNotifier {
   List<JenisCatatan> _listData = [];
   bool _isLoading = false;
-  final ApiService _apiService = ApiService();
+  final JenisCatatanRepository _repo = JenisCatatanRepository();
 
   List<JenisCatatan> get listData => _listData;
   bool get isLoading => _isLoading;
@@ -14,7 +14,7 @@ class JenisCatatanViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      _listData = await _apiService.getJenisCatatan(tipe);
+      _listData = await _repo.getJenisCatatan(tipe);
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -24,19 +24,19 @@ class JenisCatatanViewModel extends ChangeNotifier {
   }
 
   Future<bool> addData(JenisCatatan item) async {
-    bool success = await _apiService.addJenisCatatan(item);
+    bool success = await _repo.addJenisCatatan(item);
     if (success) fetchJenisCatatan(item.tipe);
     return success;
   }
 
   Future<bool> updateData(int id, JenisCatatan item) async {
-    bool success = await _apiService.updateJenisCatatan(id, item);
+    bool success = await _repo.updateJenisCatatan(id, item);
     if (success) fetchJenisCatatan(item.tipe);
     return success;
   }
 
   Future<bool> deleteData(int id, String currentTipe) async {
-    bool success = await _apiService.deleteJenisCatatan(id);
+    bool success = await _repo.deleteJenisCatatan(id);
     if (success) fetchJenisCatatan(currentTipe);
     return success;
   }

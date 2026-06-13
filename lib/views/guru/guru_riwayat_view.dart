@@ -1,11 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/guru_view_model.dart';
 import '../../models/point_record_model.dart';
 import '../widgets/search_field.dart';
+import '../widgets/glass_container.dart';
 
-/// Tab Riwayat Guru
-/// Menampilkan: Daftar riwayat pemberian poin oleh guru, fitur search multi-field, filter jenis, & delete
 class GuruRiwayatView extends StatefulWidget {
   const GuruRiwayatView({super.key});
 
@@ -19,7 +19,6 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
   @override
   void initState() {
     super.initState();
-    // Reset filters on load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final guruVm = Provider.of<GuruViewModel>(context, listen: false);
       guruVm.setSearchQuery('');
@@ -38,60 +37,101 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
     final guruVm = Provider.of<GuruViewModel>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5FA),
-      appBar: AppBar(
-        title: const Text(
-          'Riwayat Pemberian Poin',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      backgroundColor: const Color(0xFF0F0C29),
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: ClipRRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: AppBar(
+              title: const Text(
+                'Riwayat Pemberian Poin',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+              ),
+              backgroundColor: const Color(0xFF0F0C29).withValues(alpha: 0.7),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: Border(
+                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 1.5),
+              ),
+            ),
+          ),
         ),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: const Color(0xFF1A1A2E),
-        automaticallyImplyLeading: false,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: SearchField(
-              controller: _searchController,
-              hintText: 'Cari nama siswa, kelas, NIS, atau poin...',
-              onChanged: (val) {
-                guruVm.setSearchQuery(val);
-              },
-              suffixIcon: guruVm.searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        guruVm.setSearchQuery('');
-                      },
-                    )
-                  : null,
+          // Background Glows
+          Positioned(
+            top: 100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF00F2FE).withValues(alpha: 0.08),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
+                child: Container(color: Colors.transparent),
+              ),
             ),
           ),
 
-          // Filter Chips
-          _buildFilterChips(guruVm),
-
-          // List Riwayat
-          Expanded(
-            child: guruVm.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : RefreshIndicator(
-                    onRefresh: () => guruVm.refreshData(),
-                    child: guruVm.riwayatPoin.isEmpty
-                        ? _buildEmptyState()
-                        : ListView.builder(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                            itemCount: guruVm.riwayatPoin.length,
-                            itemBuilder: (context, index) {
-                              final record = guruVm.riwayatPoin[index];
-                              return _buildRiwayatCard(context, record, guruVm);
+          SafeArea(
+            child: Column(
+              children: [
+                // Search Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: SearchField(
+                    controller: _searchController,
+                    hintText: 'Cari nama, kelas, NIS, atau poin...',
+                    onChanged: (val) {
+                      guruVm.setSearchQuery(val);
+                    },
+                    suffixIcon: guruVm.searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear_rounded, color: Colors.white.withValues(alpha: 0.6)),
+                            onPressed: () {
+                              _searchController.clear();
+                              guruVm.setSearchQuery('');
                             },
-                          ),
+                          )
+                        : null,
                   ),
+                ),
+
+                // Filter Chips
+                _buildFilterChips(guruVm),
+
+                // List Riwayat
+                Expanded(
+                  child: guruVm.isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
+                          ),
+                        )
+                      : RefreshIndicator(
+                          color: const Color(0xFF6C63FF),
+                          backgroundColor: const Color(0xFF151233),
+                          onRefresh: () => guruVm.refreshData(),
+                          child: guruVm.riwayatPoin.isEmpty
+                              ? _buildEmptyState()
+                              : ListView.builder(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  itemCount: guruVm.riwayatPoin.length,
+                                  itemBuilder: (context, index) {
+                                    final record = guruVm.riwayatPoin[index];
+                                    return _buildRiwayatCard(context, record, guruVm);
+                                  },
+                                ),
+                        ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -104,13 +144,13 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         children: [
-          _buildChip(vm, 'semua', 'Semua', Icons.grid_view, const Color(0xFF302B63)),
-          const SizedBox(width: 8),
-          _buildChip(vm, 'prestasi', 'Apresiasi', Icons.star, const Color(0xFF4CAF50)),
-          const SizedBox(width: 8),
-          _buildChip(vm, 'pelanggaran', 'Pelanggaran', Icons.gavel, Colors.redAccent),
+          _buildChip(vm, 'semua', 'Semua', Icons.grid_view_rounded, const Color(0xFF6C63FF)),
+          const SizedBox(width: 10),
+          _buildChip(vm, 'prestasi', 'Apresiasi', Icons.star_rounded, const Color(0xFF00FF87)),
+          const SizedBox(width: 10),
+          _buildChip(vm, 'pelanggaran', 'Pelanggaran', Icons.gavel_rounded, const Color(0xFFFF2E93)),
         ],
       ),
     );
@@ -124,33 +164,42 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
     Color activeColor,
   ) {
     final isSelected = vm.filterJenis == value;
-    return ChoiceChip(
-      avatar: Icon(
-        icon,
-        size: 16,
-        color: isSelected ? Colors.white : activeColor.withValues(alpha: 0.7),
-      ),
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (selected) {
-          vm.setFilterJenis(value);
-        }
-      },
-      selectedColor: activeColor,
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.black87,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        fontSize: 13,
-      ),
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(
-          color: isSelected ? Colors.transparent : Colors.grey.shade300,
+    return GestureDetector(
+      onTap: () => vm.setFilterJenis(value),
+      child: GlassContainer(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        borderRadius: 30,
+        color: isSelected 
+            ? activeColor.withValues(alpha: 0.25) 
+            : Colors.white.withValues(alpha: 0.04),
+        borderColor: isSelected 
+            ? activeColor 
+            : Colors.white.withValues(alpha: 0.1),
+        boxShadow: isSelected ? [
+          BoxShadow(
+            color: activeColor.withValues(alpha: 0.25),
+            blurRadius: 10,
+          )
+        ] : [],
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? activeColor : Colors.white.withValues(alpha: 0.6),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.7),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 13,
+              ),
+            ),
+          ],
         ),
       ),
-      showCheckmark: false,
     );
   }
 
@@ -158,26 +207,33 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.15),
         Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.history, size: 64, color: Colors.grey.shade300),
-              const SizedBox(height: 12),
-              Text(
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.04),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.history_rounded, size: 56, color: Colors.white.withValues(alpha: 0.25)),
+              ),
+              const SizedBox(height: 16),
+              const Text(
                 'Tidak ada riwayat pemberian poin',
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  fontSize: 16,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
-                'Coba gunakan filter lain atau berikan poin baru.',
+                'Coba gunakan filter lain atau catat poin baru.',
                 style: TextStyle(
-                  color: Colors.grey.shade400,
+                  color: Colors.white.withValues(alpha: 0.45),
                   fontSize: 13,
                 ),
               ),
@@ -191,112 +247,117 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
   Widget _buildRiwayatCard(
       BuildContext context, PointRecord record, GuruViewModel vm) {
     final isApresiasi = record.jenisPoin == 'prestasi';
-    final color = isApresiasi ? const Color(0xFF4CAF50) : Colors.redAccent;
+    final color = isApresiasi ? const Color(0xFF00FF87) : const Color(0xFFFF2E93);
 
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 10),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
+    return GlassContainer(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      color: Colors.white.withValues(alpha: 0.03),
+      borderColor: Colors.white.withValues(alpha: 0.08),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(24),
         onTap: () => _showDetailDialog(context, record),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Icon Poin Bulat
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: color.withValues(alpha: 0.1),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Icon Poin Bulat
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+                border: Border.all(color: color.withValues(alpha: 0.3)),
+              ),
+              child: Center(
                 child: Text(
                   '${isApresiasi ? "+" : ""}${record.poin}',
                   style: TextStyle(
                     color: color,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
                     fontSize: 14,
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+            ),
+            const SizedBox(width: 14),
 
-              // Info Tengah
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      record.namaSiswa,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: Color(0xFF1A1A2E),
-                      ),
+            // Info Tengah
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    record.namaSiswa,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Colors.white,
                     ),
-                    Text(
-                      '${record.kelasSiswa} • NIS: ${record.nisSiswa}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${record.kelasSiswa}  •  NIS: ${record.nisSiswa}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.white.withValues(alpha: 0.45),
+                      fontWeight: FontWeight.w500,
                     ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: color.withValues(alpha: 0.1)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            record.namaPoin,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: color,
-                            ),
-                          ),
-                          Text(
-                            record.detailPoin,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: color.withValues(alpha: 0.12)),
                     ),
-                    const SizedBox(height: 6),
-                    Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.calendar_month_outlined, size: 12, color: Colors.grey.shade400),
-                        const SizedBox(width: 4),
                         Text(
-                          '${record.tanggal} • ${record.jam}',
-                          style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                          record.namaPoin,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          record.detailPoin,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today_rounded, size: 12, color: Colors.white.withValues(alpha: 0.4)),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${record.tanggal}  •  ${record.jam}',
+                        style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.4), fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+            ),
 
-              // Tombol Delete
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                onPressed: () => _confirmDelete(context, record, vm),
-                tooltip: 'Hapus riwayat',
-              ),
-            ],
-          ),
+            // Tombol Delete
+            IconButton(
+              icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFFF2E93), size: 22),
+              onPressed: () => _confirmDelete(context, record, vm),
+              tooltip: 'Hapus riwayat',
+            ),
+          ],
         ),
       ),
     );
@@ -304,50 +365,73 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
 
   void _showDetailDialog(BuildContext context, PointRecord record) {
     final isApresiasi = record.jenisPoin == 'prestasi';
-    final color = isApresiasi ? const Color(0xFF4CAF50) : Colors.redAccent;
+    final color = isApresiasi ? const Color(0xFF00FF87) : const Color(0xFFFF2E93);
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: color.withValues(alpha: 0.1),
-              child: Text(
-                '${record.poin}',
-                style: TextStyle(color: color, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Expanded(
-              child: Text(
-                'Detail Riwayat Poin',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _detailRow('Siswa', record.namaSiswa),
-            _detailRow('Kelas/NIS', '${record.kelasSiswa} / ${record.nisSiswa}'),
-            _detailRow('Nama Poin', record.namaPoin),
-            _detailRow('Deskripsi', record.detailPoin),
-            _detailRow('Nilai Poin', '${isApresiasi ? "+" : ""}${record.poin} (${isApresiasi ? "Apresiasi" : "Pelanggaran"})'),
-            _detailRow('Guru', record.namaGuru),
-            _detailRow('Waktu', '${record.tanggal} pukul ${record.jam}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tutup'),
+      builder: (_) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF151233).withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 1.5),
           ),
-        ],
+          title: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
+                ),
+                child: Center(
+                  child: Text(
+                    '${record.poin}',
+                    style: TextStyle(color: color, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Detail Riwayat Poin',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _detailRow('Siswa', record.namaSiswa),
+              const Divider(color: Colors.white10),
+              _detailRow('Kelas / NIS', '${record.kelasSiswa} / ${record.nisSiswa}'),
+              const Divider(color: Colors.white10),
+              _detailRow('Nama Poin', record.namaPoin),
+              const Divider(color: Colors.white10),
+              _detailRow('Deskripsi', record.detailPoin),
+              const Divider(color: Colors.white10),
+              _detailRow('Kategori', isApresiasi ? 'Apresiasi' : 'Pelanggaran'),
+              const Divider(color: Colors.white10),
+              _detailRow('Guru Catat', record.namaGuru),
+              const Divider(color: Colors.white10),
+              _detailRow('Waktu', '${record.tanggal} • ${record.jam}'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Tutup',
+                style: TextStyle(color: Color(0xFF6C63FF), fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -364,16 +448,16 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
               label,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+                color: Colors.white.withValues(alpha: 0.45),
                 fontSize: 13,
               ),
             ),
           ),
-          const Text(': '),
+          const Text('  ', style: TextStyle(color: Colors.white30)),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 13, color: Colors.black87),
+              style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.85), height: 1.4),
             ),
           ),
         ],
@@ -384,44 +468,66 @@ class _GuruRiwayatViewState extends State<GuruRiwayatView> {
   void _confirmDelete(BuildContext context, PointRecord record, GuruViewModel vm) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
-            SizedBox(width: 8),
-            Text('Hapus Riwayat'),
-          ],
-        ),
-        content: Text(
-            'Apakah Anda yakin ingin menghapus riwayat pemberian poin "${record.namaPoin}" untuk ${record.namaSiswa}? Tindakan ini akan mengembalikan poin siswa terkait.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: AlertDialog(
+          backgroundColor: const Color(0xFF151233).withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 1.5),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await vm.deleteRiwayat(record.id);
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Riwayat berhasil dihapus'),
-                  backgroundColor: Colors.redAccent,
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF2E93).withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
                 ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                child: const Icon(Icons.warning_amber_rounded, color: Color(0xFFFF2E93), size: 22),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'Hapus Riwayat?',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ],
+          ),
+          content: Text(
+            'Apakah Anda yakin ingin menghapus catatan poin "${record.namaPoin}" untuk ${record.namaSiswa}? Tindakan ini akan mengembalikan poin siswa tersebut.',
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Batal',
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontWeight: FontWeight.bold),
               ),
             ),
-            child: const Text('Hapus'),
-          ),
-        ],
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await vm.deleteRiwayat(record.id);
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Catatan riwayat berhasil dihapus'),
+                    backgroundColor: Color(0xFFFF2E93),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF2E93),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Hapus', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }

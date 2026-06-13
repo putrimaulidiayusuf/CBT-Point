@@ -5,15 +5,21 @@ import '../models/point_record_model.dart';
 import '../models/draft_model.dart';
 import '../models/message_model.dart';
 import '../models/user_model.dart';
-import '../services/local_data_service.dart';
-import '../services/auth_service.dart';
+import '../repositories/auth_repository.dart';
+import '../repositories/jenis_catatan_repository.dart';
+import '../repositories/point_record_repository.dart';
+import '../repositories/draft_repository.dart';
+import '../repositories/message_repository.dart';
 
 /// ViewModel untuk halaman guru
 /// Mengelola riwayat poin, draft, jenis poin, scan QR, dan kirim pesan
 
 class GuruViewModel extends ChangeNotifier {
-  final LocalDataService _localDataService = LocalDataService();
-  final AuthService _authService = AuthService();
+  final AuthRepository _authRepo = AuthRepository();
+  final JenisCatatanRepository _jenisCatatanRepo = JenisCatatanRepository();
+  final PointRecordRepository _pointRepo = PointRecordRepository();
+  final DraftRepository _draftRepo = DraftRepository();
+  final MessageRepository _messageRepo = MessageRepository();
 
   String _namaGuru = '';
   bool _isLoading = false;
@@ -55,6 +61,7 @@ class GuruViewModel extends ChangeNotifier {
 
     try {
       await Future.wait([
+        _loadSemuaSiswa(),
         _loadRiwayatPoin(),
         _loadJenisPoin(),
         _loadDrafts(),
@@ -75,6 +82,7 @@ class GuruViewModel extends ChangeNotifier {
 
     try {
       await Future.wait([
+        _loadSemuaSiswa(),
         _loadRiwayatPoin(),
         _loadDrafts(),
       ]);
@@ -89,7 +97,7 @@ class GuruViewModel extends ChangeNotifier {
   // ===== RIWAYAT POIN =====
 
   Future<void> _loadRiwayatPoin() async {
-    _riwayatPoin = await _localDataService.getPointRecordsByGuru(_namaGuru);
+    _riwayatPoin = await _pointRepo.getPointRecordsByGuru(_namaGuru);
     _applyFilter();
   }
 
@@ -135,7 +143,7 @@ class GuruViewModel extends ChangeNotifier {
 
   /// Hapus riwayat poin berdasarkan ID
   Future<void> deleteRiwayat(String id) async {
-    await _localDataService.deletePointRecord(id);
+    await _pointRepo.deletePointRecord(id);
     await _loadRiwayatPoin();
     notifyListeners();
   }
@@ -143,8 +151,8 @@ class GuruViewModel extends ChangeNotifier {
   // ===== JENIS POIN =====
 
   Future<void> _loadJenisPoin() async {
-    _daftarApresiasi = await _localDataService.loadJenisPoin('prestasi');
-    _daftarPelanggaran = await _localDataService.loadJenisPoin('pelanggaran');
+    _daftarApresiasi = await _jenisCatatanRepo.getJenisCatatan('prestasi');
+    _daftarPelanggaran = await _jenisCatatanRepo.getJenisCatatan('pelanggaran');
   }
 
   /// Pilih jenis poin yang akan diberikan
@@ -162,14 +170,31 @@ class GuruViewModel extends ChangeNotifier {
 
   // ===== SISWA PENERIMA =====
 
-  /// Mendapatkan daftar semua siswa
-  List<Siswa> getAllSiswa() => _authService.getAllSiswa();
+  List<Siswa> _semuaSiswa = [];
+  
+  /// Mengambil daftar semua siswa melalui API (hanya dipanggil internal)
+  Future<void> _loadSemuaSiswa() async {
+    _semuaSiswa = await _authRepo.getAllSiswa();
+  }
 
-  /// Mencari siswa berdasarkan query
-  List<Siswa> searchSiswa(String query) => _authService.searchSiswa(query);
+  /// Mendapatkan daftar semua siswa dari cache lokal view model
+  List<Siswa> getAllSiswa() => _semuaSiswa;
+
+  /// Mencari siswa dari cache lokal (atau bisa query ke API)
+  List<Siswa> searchSiswa(String query) {
+    if (query.isEmpty) return _semuaSiswa;
+    final q = query.toLowerCase();
+    return _semuaSiswa.where((s) => s.nama.toLowerCase().contains(q) || s.nis.contains(q) || s.kelas.toLowerCase().contains(q)).toList();
+  }
 
   /// Mencari siswa berdasarkan NIS (untuk scan QR)
-  Siswa? getSiswaByNis(String nis) => _authService.getSiswaByNis(nis);
+  Siswa? getSiswaByNis(String nis) {
+    try {
+      return _semuaSiswa.firstWhere((s) => s.nis == nis);
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Tambah siswa ke daftar penerima
   void addSiswaPenerima(Siswa siswa) {
@@ -210,7 +235,7 @@ class GuruViewModel extends ChangeNotifier {
       tanggal: DateFormat('dd/MM/yyyy').format(now),
       jam: DateFormat('HH:mm').format(now),
     );
-    await _localDataService.addPointRecord(record);
+    await _pointRepo.addPointRecord(record);
   }
 
   /// Berikan poin ke semua siswa yang dipilih
@@ -238,7 +263,7 @@ class GuruViewModel extends ChangeNotifier {
   // ===== DRAFT =====
 
   Future<void> _loadDrafts() async {
-    _drafts = await _localDataService.loadDrafts();
+    _drafts = await _draftRepo.loadDrafts();
   }
 
   /// Simpan draft baru
@@ -256,7 +281,7 @@ class GuruViewModel extends ChangeNotifier {
       createdAt: DateFormat('dd/MM/yyyy HH:mm').format(now),
     );
 
-    await _localDataService.addDraft(draft);
+    await _draftRepo.addDraft(draft);
     _selectedSiswa.clear();
     _selectedPoin = null;
     await _loadDrafts();
@@ -265,7 +290,7 @@ class GuruViewModel extends ChangeNotifier {
 
   /// Hapus draft berdasarkan ID
   Future<void> hapusDraft(String id) async {
-    await _localDataService.deleteDraft(id);
+    await _draftRepo.deleteDraft(id);
     await _loadDrafts();
     notifyListeners();
   }
@@ -288,7 +313,7 @@ class GuruViewModel extends ChangeNotifier {
         await berikanPoinKeSiswa(poin, siswa);
       }
 
-      await _localDataService.deleteDraft(draft.id);
+      await _draftRepo.deleteDraft(draft.id);
       await Future.wait([_loadRiwayatPoin(), _loadDrafts()]);
     } catch (e) {
       debugPrint('Error proses draft: $e');
@@ -313,9 +338,9 @@ class GuruViewModel extends ChangeNotifier {
     // Update draft — hapus siswa yang sudah diproses
     final updatedSiswa = List<Siswa>.from(draft.daftarSiswa)..remove(siswa);
     if (updatedSiswa.isEmpty) {
-      await _localDataService.deleteDraft(draft.id);
+      await _draftRepo.deleteDraft(draft.id);
     } else {
-      await _localDataService.updateDraft(
+      await _draftRepo.updateDraft(
         draft.copyWith(daftarSiswa: updatedSiswa),
       );
     }
@@ -326,7 +351,7 @@ class GuruViewModel extends ChangeNotifier {
 
   /// Update draft (edit daftar siswa)
   Future<void> updateDraft(Draft draft) async {
-    await _localDataService.updateDraft(draft);
+    await _draftRepo.updateDraft(draft);
     await _loadDrafts();
     notifyListeners();
   }
@@ -354,7 +379,7 @@ class GuruViewModel extends ChangeNotifier {
         catatan: catatan,
         lampiran: lampiran,
       );
-      await _localDataService.addMessage(message);
+      await _messageRepo.addMessage(message);
     }
     notifyListeners();
   }

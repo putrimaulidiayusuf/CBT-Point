@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-/// Widget reusable untuk kotak poin (apresiasi/pelanggaran)
-/// Menampilkan label dan total poin dengan styling berbeda per jenis
+import 'glass_container.dart';
 
 class PointCard extends StatelessWidget {
   final String label;
@@ -23,62 +21,63 @@ class PointCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              color.withValues(alpha: 0.15),
-              color.withValues(alpha: 0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: GlassContainer(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        color: color.withValues(alpha: 0.06),
+        borderColor: color.withValues(alpha: 0.25),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.15),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: color.withValues(alpha: 0.3),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        ],
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(height: 10),
             Text(
               totalPoin.toString(),
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 26,
                 fontWeight: FontWeight.bold,
                 color: color,
+                shadows: [
+                  Shadow(
+                    color: color.withValues(alpha: 0.5),
+                    blurRadius: 10,
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: color.withValues(alpha: 0.8),
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
               textAlign: TextAlign.center,
             ),
             if (onTap != null) ...[
               const SizedBox(height: 4),
               Text(
-                'Tap untuk lihat detail',
+                'Lihat Detail',
                 style: TextStyle(
                   fontSize: 10,
-                  color: color.withValues(alpha: 0.5),
+                  color: Colors.white.withValues(alpha: 0.45),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
                 ),
               ),
             ],

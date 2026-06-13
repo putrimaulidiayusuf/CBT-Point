@@ -1,10 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/auth_view_model.dart';
 import '../../view_models/guru_view_model.dart';
+import '../widgets/glass_container.dart';
 import 'guru_dashboard_view.dart';
 
-/// Container Utama Guru (Dashboard)
 class GuruMainView extends StatefulWidget {
   const GuruMainView({super.key});
 
@@ -16,7 +17,6 @@ class _GuruMainViewState extends State<GuruMainView> {
   @override
   void initState() {
     super.initState();
-    // Inisialisasi data GuruViewModel ketika pertama kali masuk halaman utama guru
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authVm = Provider.of<AuthViewModel>(context, listen: false);
       final guruVm = Provider.of<GuruViewModel>(context, listen: false);
@@ -32,27 +32,37 @@ class _GuruMainViewState extends State<GuruMainView> {
     final guruVm = Provider.of<GuruViewModel>(context);
 
     return Scaffold(
+      backgroundColor: const Color(0xFF0F0C29),
       body: Stack(
         children: [
           const GuruDashboardView(),
           if (guruVm.isLoading)
-            Container(
-              color: Colors.black.withValues(alpha: 0.3),
-              child: const Center(
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                    child: Column(
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.4),
+                child: Center(
+                  child: GlassContainer(
+                    width: 220,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    color: const Color(0xFF151233).withValues(alpha: 0.9),
+                    borderColor: Colors.white.withValues(alpha: 0.12),
+                    child: const Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(color: Color(0xFF302B63)),
-                        SizedBox(height: 16),
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
+                          strokeWidth: 3.5,
+                        ),
+                        SizedBox(height: 18),
                         Text(
                           'Memproses data...',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            fontSize: 14,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ],
                     ),
