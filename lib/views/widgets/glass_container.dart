@@ -18,9 +18,9 @@ class GlassContainer extends StatelessWidget {
   const GlassContainer({
     super.key,
     required this.child,
-    this.blur = 12,
-    this.opacity = 0.6, // Default for beautiful light mode glassmorphism
-    this.borderRadius = 20,
+    this.blur = 10,
+    this.opacity = 0.85,
+    this.borderRadius = 16,
     this.borderColor,
     this.color,
     this.padding,
@@ -38,13 +38,14 @@ class GlassContainer extends StatelessWidget {
       height: height,
       margin: margin,
       decoration: BoxDecoration(
-        boxShadow: boxShadow ?? [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: boxShadow ??
+            [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -54,11 +55,15 @@ class GlassContainer extends StatelessWidget {
             padding: padding,
             decoration: BoxDecoration(
               color: color ?? Colors.white.withValues(alpha: opacity),
+
+              // lebih subtle untuk light mode
               borderRadius: BorderRadius.circular(borderRadius),
-              border: border ?? Border.all(
-                color: borderColor ?? Colors.white.withValues(alpha: 0.6),
-                width: 1.5,
-              ),
+              border: border ??
+                  Border.all(
+                    color: borderColor ??
+                        Colors.black.withValues(alpha: 0.06),
+                    width: 1,
+                  ),
             ),
             child: child,
           ),

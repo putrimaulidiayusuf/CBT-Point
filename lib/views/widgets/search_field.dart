@@ -20,22 +20,20 @@ class SearchField extends StatelessWidget {
     return GlassContainer(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       borderRadius: 16,
-      color: Colors.white.withValues(alpha: 0.04),
-      borderColor: Colors.white.withValues(alpha: 0.08),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: const TextStyle(color: Color(0xFF1E1E38), fontSize: 14),
         cursorColor: const Color(0xFF6C63FF),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            color: Colors.white.withValues(alpha: 0.45),
+            color: const Color(0xFF1E1E38).withValues(alpha: 0.45),
             fontSize: 14,
           ),
           prefixIcon: Icon(
             Icons.search_rounded,
-            color: Colors.white.withValues(alpha: 0.45),
+            color: const Color(0xFF1E1E38).withValues(alpha: 0.45),
             size: 20,
           ),
           suffixIcon: suffixIcon,

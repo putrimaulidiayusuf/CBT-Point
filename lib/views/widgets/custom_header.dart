@@ -15,7 +15,7 @@ class CustomHeader extends StatelessWidget {
     this.detail1,
     this.detail2,
     required this.onLogout,
-    this.backgroundColor = const Color(0xFF0F0C29),
+    this.backgroundColor = const Color(0xFFF4F6FC),
   });
 
   @override
@@ -23,14 +23,14 @@ class CustomHeader extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: GlassContainer(
-        borderRadius: 0, // Full width header, no bottom radius to fit the screen edge nicely
+        borderRadius: 0, // Full width header
         border: Border(
           bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Colors.white.withValues(alpha: 0.8),
             width: 1.5,
           ),
         ),
-        color: const Color(0xFF0F0C29).withValues(alpha: 0.7),
+        color: Colors.white.withValues(alpha: 0.65),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: SafeArea(
           bottom: false,
@@ -51,7 +51,7 @@ class CustomHeader extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF6C63FF).withValues(alpha: 0.45),
+                        color: const Color(0xFF6C63FF).withValues(alpha: 0.25),
                         blurRadius: 10,
                         offset: const Offset(0, 3),
                       ),
@@ -73,16 +73,10 @@ class CustomHeader extends StatelessWidget {
                   Text(
                     nama,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Color(0xFF1E1E38),
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black45,
-                          blurRadius: 6,
-                        ),
-                      ],
                     ),
                   ),
                   if (detail1 != null) ...[
@@ -90,9 +84,9 @@ class CustomHeader extends StatelessWidget {
                     Text(
                       detail1!,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.75),
+                        color: const Color(0xFF1E1E38).withValues(alpha: 0.7),
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
@@ -101,8 +95,9 @@ class CustomHeader extends StatelessWidget {
                     Text(
                       detail2!,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.55),
+                        color: const Color(0xFF1E1E38).withValues(alpha: 0.5),
                         fontSize: 11,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -121,17 +116,17 @@ class CustomHeader extends StatelessWidget {
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: AlertDialog(
-          backgroundColor: const Color(0xFF151233).withValues(alpha: 0.9),
+          backgroundColor: Colors.white.withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 1.5),
+            side: const BorderSide(color: Colors.white, width: 2),
           ),
           title: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF2E93).withValues(alpha: 0.15),
+                  color: const Color(0xFFFF2E93).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.logout_rounded, color: Color(0xFFFF2E93), size: 22),
@@ -139,20 +134,20 @@ class CustomHeader extends StatelessWidget {
               const SizedBox(width: 10),
               const Text(
                 'Keluar Aplikasi',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                style: TextStyle(color: Color(0xFF1E1E38), fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ],
           ),
-          content: Text(
+          content: const Text(
             'Apakah kamu yakin ingin logout dari ZiePoint?',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
+            style: TextStyle(color: Colors.black87, fontSize: 14),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
                 'Batal',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold),
               ),
             ),
             ElevatedButton(
@@ -164,7 +159,7 @@ class CustomHeader extends StatelessWidget {
                 backgroundColor: const Color(0xFFFF2E93),
                 foregroundColor: Colors.white,
                 elevation: 8,
-                shadowColor: const Color(0xFFFF2E93).withValues(alpha: 0.5),
+                shadowColor: const Color(0xFFFF2E93).withValues(alpha: 0.3),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

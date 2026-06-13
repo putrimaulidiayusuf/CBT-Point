@@ -32,7 +32,7 @@ class _GuruMainViewState extends State<GuruMainView> {
     final guruVm = Provider.of<GuruViewModel>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0C29),
+      backgroundColor: const Color(0xFFF4F6FC),
       body: Stack(
         children: [
           const GuruDashboardView(),
@@ -40,13 +40,11 @@ class _GuruMainViewState extends State<GuruMainView> {
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
               child: Container(
-                color: Colors.black.withValues(alpha: 0.4),
+                color: Colors.black.withValues(alpha: 0.15),
                 child: Center(
                   child: GlassContainer(
                     width: 220,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                    color: const Color(0xFF151233).withValues(alpha: 0.9),
-                    borderColor: Colors.white.withValues(alpha: 0.12),
                     child: const Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -60,7 +58,7 @@ class _GuruMainViewState extends State<GuruMainView> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold, 
                             fontSize: 14,
-                            color: Colors.white,
+                            color: Color(0xFF1E1E38),
                             letterSpacing: 0.5,
                           ),
                         ),

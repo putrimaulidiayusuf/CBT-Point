@@ -19,11 +19,11 @@ class DisciplineIndicator extends StatelessWidget {
 
   Color _getColor() {
     final score = currentPoin;
-    if (score >= 50) return const Color(0xFF00FF87); // Neon Green
-    if (score > 0) return const Color(0xFF00F2FE);  // Neon Cyan
-    if (score == 0) return const Color(0xFFFFB300); // Neon Gold/Amber
-    if (score > -50) return const Color(0xFFFF8C00); // Neon Orange
-    return const Color(0xFFFF2E93);                 // Neon Pink/Red
+    if (score >= 50) return const Color(0xFF10B981); // Emerald Green
+    if (score > 0) return const Color(0xFF0EA5E9);  // Sky Cyan
+    if (score == 0) return const Color(0xFFD97706); // Amber/Gold
+    if (score > -50) return const Color(0xFFF97316); // Orange
+    return const Color(0xFFF43F5E);                 // Rose Pink/Red
   }
 
   IconData _getIcon() {
@@ -36,13 +36,10 @@ class DisciplineIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _getColor();
-    // Map score (-100 to 100) to 0.0 to 1.0 progress bar
     final double progress = ((currentPoin + 100) / 200.0).clamp(0.0, 1.0);
 
     return GlassContainer(
       padding: const EdgeInsets.all(20),
-      color: Colors.white.withValues(alpha: 0.04),
-      borderColor: Colors.white.withValues(alpha: 0.08),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
@@ -54,29 +51,30 @@ class DisciplineIndicator extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
+                    color: color.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(_getIcon(), color: color, size: 24),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Indeks Kedisiplinan',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Color(0xFF1E1E38),
                         ),
                       ),
                       Text(
                         'Gabungan Poin Real-time',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -85,9 +83,9 @@ class DisciplineIndicator extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+                    border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
                   ),
                   child: Text(
                     label,
@@ -108,7 +106,7 @@ class DisciplineIndicator extends StatelessWidget {
                 Container(
                   height: 12,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: Colors.black.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(6),
                   ),
                 ),
@@ -120,7 +118,7 @@ class DisciplineIndicator extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        color.withValues(alpha: 0.5),
+                        color.withValues(alpha: 0.6),
                         color,
                       ],
                       begin: Alignment.centerLeft,
@@ -129,7 +127,7 @@ class DisciplineIndicator extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                     boxShadow: [
                       BoxShadow(
-                        color: color.withValues(alpha: 0.45),
+                        color: color.withValues(alpha: 0.25),
                         blurRadius: 10,
                         offset: const Offset(0, 2),
                       ),
@@ -154,7 +152,8 @@ class DisciplineIndicator extends StatelessWidget {
                   'Batas Kritis: -100 Poin',
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -165,14 +164,14 @@ class DisciplineIndicator extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.analytics_outlined, size: 14, color: Colors.white.withValues(alpha: 0.4)),
+                    Icon(Icons.analytics_outlined, size: 14, color: Colors.grey.shade600),
                     const SizedBox(width: 6),
                     Text(
                       'Ketuk untuk melihat detail grafik & sanksi',
                       style: TextStyle(
                         fontSize: 11, 
-                        color: Colors.white.withValues(alpha: 0.4),
-                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -204,7 +203,7 @@ class DisciplineIndicator extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           color: color,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                           height: 1.4,
                         ),
                       ),

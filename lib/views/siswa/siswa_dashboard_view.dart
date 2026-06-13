@@ -21,24 +21,25 @@ class SiswaDashboardView extends StatelessWidget {
     final authVm = Provider.of<AuthViewModel>(context);
     final siswaVm = Provider.of<SiswaViewModel>(context);
     final siswa = authVm.currentSiswa;
+    final size = MediaQuery.of(context).size;
 
     if (siswa == null) {
       return const Scaffold(
-        backgroundColor: Color(0xFF0F0C29),
+        backgroundColor: Color(0xFFF4F6FC),
         body: Center(
           child: Text(
             'Data siswa tidak ditemukan',
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: Color(0xFF1E1E38), fontSize: 16),
           ),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0C29),
+      backgroundColor: const Color(0xFFF4F6FC),
       body: Stack(
         children: [
-          // 1. Neon Glowing Background circles
+          // 1. Soft Pastel Glowing Background blobs
           Positioned(
             top: 40,
             left: -100,
@@ -47,7 +48,7 @@ class SiswaDashboardView extends StatelessWidget {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF6C63FF).withValues(alpha: 0.12),
+                color: const Color(0xFF6C63FF).withValues(alpha: 0.05),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 70, sigmaY: 70),
@@ -63,7 +64,7 @@ class SiswaDashboardView extends StatelessWidget {
               height: 350,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFFF2E93).withValues(alpha: 0.1),
+                color: const Color(0xFFFF2E93).withValues(alpha: 0.04),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
@@ -78,7 +79,7 @@ class SiswaDashboardView extends StatelessWidget {
               CustomHeader(
                 nama: siswa.nama,
                 detail1: '${siswa.nis} | ${siswa.kelas}',
-                backgroundColor: const Color(0xFF0F0C29),
+                backgroundColor: const Color(0xFFF4F6FC),
                 onLogout: () {
                   authVm.logout();
                   Navigator.pushReplacement(
@@ -96,7 +97,7 @@ class SiswaDashboardView extends StatelessWidget {
                       )
                     : RefreshIndicator(
                         color: const Color(0xFF6C63FF),
-                        backgroundColor: const Color(0xFF151233),
+                        backgroundColor: Colors.white,
                         onRefresh: () => siswaVm.refreshData(),
                         child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
@@ -166,7 +167,7 @@ class SiswaDashboardView extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Color(0xFF1E1E38),
                 letterSpacing: 0.5,
               ),
             ),
@@ -195,45 +196,42 @@ class SiswaDashboardView extends StatelessWidget {
               },
               child: GlassContainer(
                 padding: const EdgeInsets.all(16),
-                color: Colors.white.withValues(alpha: 0.04),
-                borderColor: Colors.white.withValues(alpha: 0.08),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // QR scanner box must have white background for readability by cameras
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF6C63FF).withValues(alpha: 0.2),
-                            blurRadius: 16,
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
                           ),
                         ],
                       ),
                       child: QrImageView(
                         data: nis,
                         version: QrVersions.auto,
-                        size: 100,
+                        size: 96,
                         gapless: true,
                         eyeStyle: const QrEyeStyle(
                           eyeShape: QrEyeShape.square,
-                          color: Color(0xFF0F0C29),
+                          color: Color(0xFF1E1E38),
                         ),
                         dataModuleStyle: const QrDataModuleStyle(
                           dataModuleShape: QrDataModuleShape.square,
-                          color: Color(0xFF0F0C29),
+                          color: Color(0xFF1E1E38),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
                     const Text(
                       'QR Code Siswa',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white,
+                        color: Color(0xFF1E1E38),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -242,8 +240,8 @@ class SiswaDashboardView extends StatelessWidget {
                       'Ketuk untuk perbesar',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Colors.white.withValues(alpha: 0.45),
-                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF1E1E38).withValues(alpha: 0.5),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -262,7 +260,7 @@ class SiswaDashboardView extends StatelessWidget {
                     label: 'Total Apresiasi',
                     totalPoin: vm.totalApresiasi,
                     icon: Icons.emoji_events_rounded,
-                    color: const Color(0xFF00FF87), // Neon Green
+                    color: const Color(0xFF10B981), // Light Emerald Green
                     onTap: () {
                       Navigator.push(
                         context,
@@ -283,7 +281,7 @@ class SiswaDashboardView extends StatelessWidget {
                     label: 'Total Pelanggaran',
                     totalPoin: vm.totalPelanggaran,
                     icon: Icons.warning_amber_rounded,
-                    color: const Color(0xFFFF2E93), // Neon Pink
+                    color: const Color(0xFFF43F5E), // Light Rose Pink
                     onTap: () {
                       Navigator.push(
                         context,
@@ -319,34 +317,34 @@ class SiswaDashboardView extends StatelessWidget {
                   builder: (_) => DaftarPoinSiswaView(
                     title: 'Daftar Apresiasi',
                     items: vm.daftarApresiasi,
-                    themeColor: const Color(0xFF00FF87),
+                    themeColor: const Color(0xFF10B981),
                   ),
                 ),
               );
             },
             child: GlassContainer(
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-              color: const Color(0xFF00FF87).withValues(alpha: 0.05),
-              borderColor: const Color(0xFF00FF87).withValues(alpha: 0.15),
+              color: const Color(0xFF10B981).withValues(alpha: 0.06),
+              borderColor: const Color(0xFF10B981).withValues(alpha: 0.2),
               child: Column(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00FF87).withValues(alpha: 0.15),
+                      color: const Color(0xFF10B981).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.star_rounded, color: Color(0xFF00FF87), size: 24),
+                    child: const Icon(Icons.star_rounded, color: Color(0xFF10B981), size: 24),
                   ),
                   const SizedBox(height: 12),
                   const Text(
                     'Poin Apresiasi',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E1E38)),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${vm.daftarApresiasi.length} item terdaftar',
-                    style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.45)),
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -364,34 +362,34 @@ class SiswaDashboardView extends StatelessWidget {
                   builder: (_) => DaftarPoinSiswaView(
                     title: 'Daftar Pelanggaran',
                     items: vm.daftarPelanggaran,
-                    themeColor: const Color(0xFFFF2E93),
+                    themeColor: const Color(0xFFF43F5E),
                   ),
                 ),
               );
             },
             child: GlassContainer(
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-              color: const Color(0xFFFF2E93).withValues(alpha: 0.05),
-              borderColor: const Color(0xFFFF2E93).withValues(alpha: 0.15),
+              color: const Color(0xFFF43F5E).withValues(alpha: 0.06),
+              borderColor: const Color(0xFFF43F5E).withValues(alpha: 0.2),
               child: Column(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF2E93).withValues(alpha: 0.15),
+                      color: const Color(0xFFF43F5E).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.gavel_rounded, color: Color(0xFFFF2E93), size: 24),
+                    child: const Icon(Icons.gavel_rounded, color: Color(0xFFF43F5E), size: 24),
                   ),
                   const SizedBox(height: 12),
                   const Text(
                     'Poin Pelanggaran',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E1E38)),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${vm.daftarPelanggaran.length} item terdaftar',
-                    style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.45)),
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -405,29 +403,29 @@ class SiswaDashboardView extends StatelessWidget {
   void _showDisciplineDetails(BuildContext context, SiswaViewModel vm) {
     final score = vm.statusDisiplin;
     final color = score >= 50
-        ? const Color(0xFF00FF87)
-        : (score > 0 ? const Color(0xFF00F2FE) : (score == 0 ? const Color(0xFFFFB300) : (score > -50 ? const Color(0xFFFF8C00) : const Color(0xFFFF2E93))));
+        ? const Color(0xFF10B981)
+        : (score > 0 ? const Color(0xFF0EA5E9) : (score == 0 ? const Color(0xFFD97706) : (score > -50 ? const Color(0xFFF97316) : const Color(0xFFF43F5E))));
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.6),
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       isScrollControlled: true,
       builder: (context) {
         return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF151233).withValues(alpha: 0.95),
+              color: Colors.white.withValues(alpha: 0.95),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
               ),
-              border: Border(
+              border: const Border(
                 top: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  width: 1.5,
+                  color: Colors.white,
+                  width: 2,
                 ),
               ),
             ),
@@ -440,7 +438,7 @@ class SiswaDashboardView extends StatelessWidget {
                     width: 40,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -451,14 +449,14 @@ class SiswaDashboardView extends StatelessWidget {
                   children: [
                     const Text(
                       'Analisis Indeks Kedisiplinan',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1E1E38)),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.15),
+                        color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: color.withValues(alpha: 0.3)),
+                        border: Border.all(color: color.withValues(alpha: 0.2)),
                       ),
                       child: Text(
                         vm.labelDisiplin,
@@ -472,30 +470,28 @@ class SiswaDashboardView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Indeks Kedisiplinan dihitung murni dari selisih total poin apresiasi (positif) dan poin pelanggaran (negatif) dengan nilai awal default 0.',
-                  style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.6), height: 1.4),
+                  style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.4),
                 ),
                 const SizedBox(height: 24),
                 
                 // Breakdown Box
                 GlassContainer(
                   padding: const EdgeInsets.all(18),
-                  color: Colors.white.withValues(alpha: 0.03),
-                  borderColor: Colors.white.withValues(alpha: 0.08),
                   child: Column(
                     children: [
-                      _breakdownRow('Skor Basis Standar', '0', Colors.white70),
+                      _breakdownRow('Skor Basis Standar', '0', Colors.black54),
                       const SizedBox(height: 12),
-                      Container(height: 1, color: Colors.white.withValues(alpha: 0.08)),
+                      Container(height: 1, color: Colors.grey.shade200),
                       const SizedBox(height: 12),
-                      _breakdownRow('Total Poin Apresiasi', '+${vm.totalApresiasi}', const Color(0xFF00FF87)),
+                      _breakdownRow('Total Poin Apresiasi', '+${vm.totalApresiasi}', const Color(0xFF10B981)),
                       const SizedBox(height: 12),
-                      Container(height: 1, color: Colors.white.withValues(alpha: 0.08)),
+                      Container(height: 1, color: Colors.grey.shade200),
                       const SizedBox(height: 12),
-                      _breakdownRow('Total Poin Pelanggaran', '-${vm.totalPelanggaran}', const Color(0xFFFF2E93)),
+                      _breakdownRow('Total Poin Pelanggaran', '-${vm.totalPelanggaran}', const Color(0xFFF43F5E)),
                       const SizedBox(height: 16),
-                      Container(height: 1.5, color: Colors.white.withValues(alpha: 0.2)),
+                      Container(height: 1.5, color: Colors.grey.shade300),
                       const SizedBox(height: 16),
                       _breakdownRow('Net Indeks Kedisiplinan', '$score', color, isBold: true),
                     ],
@@ -508,14 +504,14 @@ class SiswaDashboardView extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF2E93).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFFF2E93).withValues(alpha: 0.25), width: 1.2),
+                      color: const Color(0xFFF43F5E).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFF43F5E).withValues(alpha: 0.25), width: 1.2),
                     ),
                     child: const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.gavel_rounded, color: Color(0xFFFF2E93), size: 24),
+                        Icon(Icons.gavel_rounded, color: Color(0xFFF43F5E), size: 24),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -523,12 +519,12 @@ class SiswaDashboardView extends StatelessWidget {
                             children: [
                               Text(
                                 'PENTING: Batas Sanksi Tercapai (-100)',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFFFF2E93)),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFFF43F5E)),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Indeks disiplin Anda telah mencapai nilai sanksi berat. Harap segera meminta keringanan/pembinaan ke Wali Kelas secara offline.',
-                                style: TextStyle(fontSize: 12, color: Color(0xFFFFB3B3), height: 1.4),
+                                style: TextStyle(fontSize: 12, color: Colors.black87, height: 1.4),
                               ),
                             ],
                           ),
@@ -555,7 +551,7 @@ class SiswaDashboardView extends StatelessWidget {
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             fontSize: 13,
-            color: Colors.white.withValues(alpha: 0.7),
+            color: const Color(0xFF1E1E38),
           ),
         ),
         Text(
@@ -564,12 +560,6 @@ class SiswaDashboardView extends StatelessWidget {
             fontWeight: FontWeight.bold,
             fontSize: isBold ? 16 : 13,
             color: valueColor,
-            shadows: isBold ? [
-              Shadow(
-                color: valueColor.withValues(alpha: 0.4),
-                blurRadius: 8,
-              ),
-            ] : null,
           ),
         ),
       ],
@@ -581,15 +571,13 @@ class SiswaDashboardView extends StatelessWidget {
       return GlassContainer(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-        color: Colors.white.withValues(alpha: 0.03),
-        borderColor: Colors.white.withValues(alpha: 0.08),
         child: Column(
           children: [
-            Icon(Icons.inbox_outlined, size: 48, color: Colors.white.withValues(alpha: 0.25)),
+            Icon(Icons.inbox_outlined, size: 48, color: Colors.grey.shade400),
             const SizedBox(height: 12),
             Text(
               'Belum ada surat/pesan masuk',
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 14, fontWeight: FontWeight.w500),
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -602,10 +590,10 @@ class SiswaDashboardView extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.all(16),
           color: msg.isRead 
-              ? Colors.white.withValues(alpha: 0.02) 
+              ? Colors.white.withValues(alpha: 0.5) 
               : const Color(0xFF6C63FF).withValues(alpha: 0.05),
           borderColor: msg.isRead 
-              ? Colors.white.withValues(alpha: 0.06) 
+              ? Colors.white.withValues(alpha: 0.7) 
               : const Color(0xFF6C63FF).withValues(alpha: 0.25),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,7 +622,7 @@ class SiswaDashboardView extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: msg.isRead ? FontWeight.w600 : FontWeight.bold,
                         fontSize: 15,
-                        color: Colors.white,
+                        color: const Color(0xFF1E1E38),
                       ),
                     ),
                   ),
@@ -643,8 +631,8 @@ class SiswaDashboardView extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 msg.isiPesan,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.65),
+                style: const TextStyle(
+                  color: Colors.black87,
                   fontSize: 13,
                   height: 1.4,
                 ),
@@ -656,18 +644,18 @@ class SiswaDashboardView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFB300).withValues(alpha: 0.08),
+                    color: const Color(0xFFD97706).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFFFB300).withValues(alpha: 0.2)),
+                    border: Border.all(color: const Color(0xFFD97706).withValues(alpha: 0.2)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.note_alt_rounded, size: 16, color: Color(0xFFFFB300)),
+                      const Icon(Icons.note_alt_rounded, size: 16, color: Color(0xFFD97706)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Catatan: ${msg.catatan}',
-                          style: const TextStyle(fontSize: 12, color: Color(0xFFFFB300), fontWeight: FontWeight.w500),
+                          style: const TextStyle(fontSize: 12, color: Color(0xFFD97706), fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -679,18 +667,18 @@ class SiswaDashboardView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00F2FE).withValues(alpha: 0.08),
+                    color: const Color(0xFF0EA5E9).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF00F2FE).withValues(alpha: 0.2)),
+                    border: Border.all(color: const Color(0xFF0EA5E9).withValues(alpha: 0.2)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.attach_file_rounded, size: 16, color: Color(0xFF00F2FE)),
+                      const Icon(Icons.attach_file_rounded, size: 16, color: Color(0xFF0EA5E9)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Lampiran: ${msg.lampiran}',
-                          style: const TextStyle(fontSize: 12, color: Color(0xFF00F2FE), fontWeight: FontWeight.w500),
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF0EA5E9), fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -698,22 +686,22 @@ class SiswaDashboardView extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 14),
-              Container(height: 1, color: Colors.white.withValues(alpha: 0.06)),
+              Container(height: 1, color: Colors.grey.shade200),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Icon(Icons.person_pin_rounded, size: 14, color: Colors.white.withValues(alpha: 0.4)),
+                  Icon(Icons.person_pin_rounded, size: 14, color: Colors.grey.shade600),
                   const SizedBox(width: 6),
                   Text(
                     msg.pengirim,
-                    style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.4), fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
-                  Icon(Icons.calendar_today_rounded, size: 13, color: Colors.white.withValues(alpha: 0.4)),
+                  Icon(Icons.calendar_today_rounded, size: 13, color: Colors.grey.shade600),
                   const SizedBox(width: 6),
                   Text(
                     '${msg.tanggal} • ${msg.jam}',
-                    style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.4), fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),

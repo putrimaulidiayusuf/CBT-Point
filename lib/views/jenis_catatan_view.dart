@@ -29,7 +29,7 @@ class _JenisCatatanViewState extends State<JenisCatatanView> {
     final activeColor = selectedTipe == 'prestasi' ? const Color(0xFF00FF87) : const Color(0xFFFF2E93);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0C29),
+      backgroundColor: const Color(0xFFEFF2FF),
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
@@ -41,7 +41,7 @@ class _JenisCatatanViewState extends State<JenisCatatanView> {
                 "ZiePoint - Jenis Catatan",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
               ),
-              backgroundColor: const Color(0xFF0F0C29).withValues(alpha: 0.7),
+              backgroundColor: const Color(0xFFEFF2FF).withValues(alpha: 0.7),
               foregroundColor: Colors.white,
               elevation: 0,
               shape: Border(

@@ -7,8 +7,6 @@ import '../view_models/guru_view_model.dart';
 import 'siswa/siswa_dashboard_view.dart';
 import 'guru/guru_main_view.dart';
 
-/// Halaman Login Modern & Stylish (Request #8)
-/// Menggunakan visual glassmorphism, background neon glowing, & layout futuristik
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -94,10 +92,10 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0C29),
+      backgroundColor: const Color(0xFFF4F6FC),
       body: Stack(
         children: [
-          // 1. Background Neon Circles (Glow effect)
+          // 1. Soft Pastel Glowing Background Circles
           Positioned(
             top: -size.height * 0.1,
             right: -size.width * 0.2,
@@ -106,7 +104,7 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
               height: size.width * 0.8,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF6C63FF).withValues(alpha: 0.15),
+                color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
@@ -122,7 +120,7 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
               height: size.width * 0.9,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFFF2E93).withValues(alpha: 0.1),
+                color: const Color(0xFFFF2E93).withValues(alpha: 0.05),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 90, sigmaY: 90),
@@ -142,7 +140,7 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       // Logo & Icon
                       Container(
                         width: 86,
@@ -156,8 +154,8 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF6C63FF).withValues(alpha: 0.45),
-                              blurRadius: 24,
+                              color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
+                              blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
                           ],
@@ -171,11 +169,11 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                       const SizedBox(height: 20),
                       // Title
                       const Text(
-                        'ZiePoint',
+                        'CBTPoint',
                         style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: Color(0xFF1E1E38),
                           letterSpacing: 2.5,
                         ),
                       ),
@@ -184,8 +182,8 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                         'Indeks Disiplin & Apresiasi Real-time',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.55),
-                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF1E1E38).withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w600,
                           letterSpacing: 0.8,
                         ),
                       ),
@@ -199,15 +197,15 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                           child: Container(
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
+                              color: Colors.white.withValues(alpha: 0.6),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.12),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 width: 1.5,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.25),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 30,
                                   offset: const Offset(0, 15),
                                 ),
@@ -221,16 +219,17 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: Color(0xFF1E1E38),
                                     letterSpacing: 0.5,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Gunakan Nama Lengkap & NIS/NIP Anda',
+                                  'Gunakan Identitas Anda yang telah di berikan Admin, Dilarang keras menggunakan Identitas Orang Lain !',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.white.withValues(alpha: 0.4),
+                                    color: const Color(0xFF1E1E38).withValues(alpha: 0.5),
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 const SizedBox(height: 24),
@@ -246,7 +245,7 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                                 // Password / NIS Field
                                 _buildTextField(
                                   controller: _passwordController,
-                                  label: 'Password (NIS / NIP)',
+                                  label: 'Password',
                                   icon: Icons.lock_outline_rounded,
                                   obscure: _obscurePassword,
                                   suffixIcon: IconButton(
@@ -254,7 +253,7 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                                       _obscurePassword
                                           ? Icons.visibility_off_outlined
                                           : Icons.visibility_outlined,
-                                      color: Colors.white.withValues(alpha: 0.5),
+                                      color: const Color(0xFF1E1E38).withValues(alpha: 0.4),
                                       size: 18,
                                     ),
                                     onPressed: () {
@@ -272,10 +271,10 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                                     padding: const EdgeInsets.all(12),
                                     margin: const EdgeInsets.only(bottom: 16),
                                     decoration: BoxDecoration(
-                                      color: Colors.redAccent.withValues(alpha: 0.12),
+                                      color: Colors.redAccent.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
-                                        color: Colors.redAccent.withValues(alpha: 0.25),
+                                        color: Colors.redAccent.withValues(alpha: 0.3),
                                       ),
                                     ),
                                     child: Row(
@@ -354,11 +353,11 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
                       const SizedBox(height: 38),
                       // Footer info
                       Text(
-                        '© 2026 ZiePoint • CBT Point System',
+                        '© 2026 CBTPoint • CBT Point System',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.25),
+                          color: const Color(0xFF1E1E38).withValues(alpha: 0.4),
                           fontSize: 11,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -383,28 +382,28 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: Colors.white.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(14),
       ),
       child: TextField(
         controller: controller,
         obscureText: obscure,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: const TextStyle(color: Color(0xFF1E1E38), fontSize: 14),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(
-            color: Colors.white.withValues(alpha: 0.5),
+            color: const Color(0xFF1E1E38).withValues(alpha: 0.5),
             fontSize: 13,
           ),
-          prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.4), size: 20),
+          prefixIcon: Icon(icon, color: const Color(0xFF1E1E38).withValues(alpha: 0.4), size: 20),
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+            borderSide: BorderSide(color: Colors.grey.shade300),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
+            borderSide: BorderSide(color: Colors.grey.shade200),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),

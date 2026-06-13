@@ -17,10 +17,10 @@ class RiwayatPoinSiswaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isApresiasi ? const Color(0xFF00FF87) : const Color(0xFFFF2E93);
+    final color = isApresiasi ? const Color(0xFF10B981) : const Color(0xFFF43F5E);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0C29),
+      backgroundColor: const Color(0xFFF4F6FC),
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
@@ -30,13 +30,13 @@ class RiwayatPoinSiswaView extends StatelessWidget {
             child: AppBar(
               title: Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1E1E38)),
               ),
-              backgroundColor: const Color(0xFF0F0C29).withValues(alpha: 0.7),
-              foregroundColor: Colors.white,
+              backgroundColor: Colors.white.withValues(alpha: 0.7),
+              foregroundColor: const Color(0xFF1E1E38),
               elevation: 0,
               shape: Border(
-                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 1.5),
+                bottom: BorderSide(color: Colors.grey.shade200, width: 1.5),
               ),
             ),
           ),
@@ -53,23 +53,7 @@ class RiwayatPoinSiswaView extends StatelessWidget {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: color.withValues(alpha: 0.08),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 70, sigmaY: 70),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 50,
-            left: -100,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF6C63FF).withValues(alpha: 0.05),
+                color: color.withValues(alpha: 0.05),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 70, sigmaY: 70),
@@ -78,7 +62,6 @@ class RiwayatPoinSiswaView extends StatelessWidget {
             ),
           ),
 
-          // Main list
           SafeArea(
             child: records.isEmpty
                 ? Center(
@@ -100,10 +83,10 @@ class RiwayatPoinSiswaView extends StatelessWidget {
                         const SizedBox(height: 20),
                         Text(
                           'Belum ada riwayat ${isApresiasi ? 'apresiasi' : 'pelanggaran'}',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.5),
+                          style: const TextStyle(
+                            color: Color(0xFF1E1E38),
                             fontSize: 15,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -127,8 +110,6 @@ class RiwayatPoinSiswaView extends StatelessWidget {
     return GlassContainer(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      color: Colors.white.withValues(alpha: 0.03),
-      borderColor: Colors.white.withValues(alpha: 0.08),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -138,7 +119,7 @@ class RiwayatPoinSiswaView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: color.withValues(alpha: 0.25)),
                 ),
@@ -158,7 +139,7 @@ class RiwayatPoinSiswaView extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: Colors.white,
+                    color: Color(0xFF1E1E38),
                   ),
                 ),
               ),
@@ -168,14 +149,14 @@ class RiwayatPoinSiswaView extends StatelessWidget {
           // Detail poin
           Text(
             record.detailPoin,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
+            style: const TextStyle(
+              color: Colors.black87,
               fontSize: 13,
               height: 1.4,
             ),
           ),
           const SizedBox(height: 12),
-          Container(height: 1, color: Colors.white.withValues(alpha: 0.06)),
+          Container(height: 1, color: Colors.grey.shade200),
           const SizedBox(height: 10),
           // Metadata rows
           _buildMetaRow(Icons.category_rounded, 'Jenis: ${record.jenisPoin == 'prestasi' ? 'Apresiasi' : 'Pelanggaran'}'),
@@ -191,15 +172,15 @@ class RiwayatPoinSiswaView extends StatelessWidget {
   Widget _buildMetaRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: Colors.white.withValues(alpha: 0.45)),
+        Icon(icon, size: 14, color: Colors.grey.shade600),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
               fontSize: 12, 
-              color: Colors.white.withValues(alpha: 0.45),
-              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),

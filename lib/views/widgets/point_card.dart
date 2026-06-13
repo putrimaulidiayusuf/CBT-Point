@@ -22,65 +22,66 @@ class PointCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: GlassContainer(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        color: color.withValues(alpha: 0.06),
-        borderColor: color.withValues(alpha: 0.25),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        color: color.withValues(alpha: 0.08),
+        borderColor: color.withValues(alpha: 0.3),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.15),
-            blurRadius: 16,
+            color: color.withValues(alpha: 0.08),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(height: 10),
-            Text(
-              totalPoin.toString(),
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: color,
-                shadows: [
-                  Shadow(
-                    color: color.withValues(alpha: 0.5),
-                    blurRadius: 10,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    totalPoin.toString(),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
                   ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E1E38),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (onTap != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'Ketuk untuk detail',
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (onTap != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Lihat Detail',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.white.withValues(alpha: 0.45),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
-              ),
-            ],
           ],
         ),
       ),

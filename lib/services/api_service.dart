@@ -1,4 +1,3 @@
 class ApiService {
-  // Gunakan IP lokal jika menggunakan emulator Android (10.0.2.2), atau localhost untuk iOS/Web
-  static const String baseUrl = "http://localhost:3000/api";
+  static const String baseUrl = "http://192.168.1.8:3000/api";
 }
