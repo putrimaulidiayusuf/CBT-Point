@@ -76,48 +76,53 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
           ),
 
           // 2. Main content Column
-          Column(
+Container(
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFF0F0C29),
+        Color(0xFF1B1A3A),
+        Color(0xFF0F0C29),
+      ],
+    ),
+  ),
+  child: Column(
+    children: [
+      CustomHeader(
+        nama: guru.nama,
+        detail1: '${guru.nip} | Akun Guru',
+        backgroundColor: const Color(0xFF0F0C29),
+        onLogout: () {
+  authVm.logout();
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => const LoginView()),
+  );
+},
+      ),
+
+      Expanded(
+        child: RefreshIndicator(
+          color: const Color(0xFF6C63FF),
+          backgroundColor: const Color(0xFF1E1B3A),
+          onRefresh: () => guruVm.refreshData(),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             children: [
-              CustomHeader(
-                nama: guru.nama,
-                detail1: '${guru.nip} | Akun Guru',
-                backgroundColor: const Color(0xFF0F0C29),
-                onLogout: () {
-                  authVm.logout();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginView()),
-                  );
-                },
-              ),
-              Expanded(
-                child: guruVm.isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        color: const Color(0xFF6C63FF),
-                        backgroundColor: const Color(0xFF151233),
-                        onRefresh: () => guruVm.refreshData(),
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildSectionTitle('Layanan & Fitur Utama'),
-                              const SizedBox(height: 16),
-                              _buildMenuLayout(context, guruVm),
-                              const SizedBox(height: 36),
-                            ],
-                          ),
-                        ),
-                      ),
-              ),
+              _buildSectionTitle('Layanan & Fitur Utama'),
+              const SizedBox(height: 16),
+              _buildMenuLayout(context, guruVm),
+              const SizedBox(height: 36),
             ],
           ),
+        ),
+      ),
+    ],
+  ),
+),
         ],
       ),
     );

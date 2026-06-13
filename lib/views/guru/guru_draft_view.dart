@@ -315,34 +315,43 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
           // Daftar Penerima (Siswa)
           const Text(
             'Daftar Penerima Poin:',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.whie),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
           ),
-          const SizedBox(height: 10),
-          // Student list as horizontal chips
-          SizedBox(
-            height: 38,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: draft.daftarSiswa.length,
-              itemBuilder: (context, index) {
-                final siswa = draft.daftarSiswa[index];
-                return Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  child: ActionChip(
-                    onPressed: () => _showStudentActionSheet(context, draft, siswa, vm),
-                    label: Text(
-                      '${siswa.nama} (${siswa.kelas})',
-                      style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w500),
-                    ),
-                    backgroundColor: const Color(0xFF6C63FF).withValues(alpha: 0.1),
-                    side: BorderSide(
-                      color: const Color(0xFF6C63FF).withValues(alpha: 0.25),
-                    ),
-                  ),
-                );
-              },
+const SizedBox(height: 10),
+
+SizedBox(
+  height: 38,
+  child: ListView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: draft.daftarSiswa.length,
+    itemBuilder: (context, index) {
+      final siswa = draft.daftarSiswa[index];
+
+      return Container(
+        margin: const EdgeInsets.only(right: 8),
+        child: ActionChip(
+          onPressed: () => _showStudentActionSheet(context, draft, siswa, vm),
+          label: Text(
+            '${siswa.nama} (${siswa.kelas})',
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF6C63FF),
+              fontWeight: FontWeight.w600,
             ),
           ),
+          backgroundColor: const Color(0xFF6C63FF).withOpacity(0.15),
+          side: const BorderSide(
+            color: Color(0xFF6C63FF),
+            width: 1,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+      );
+    },
+  ),
+),
           const SizedBox(height: 8),
           Text(
             '* Ketuk siswa di atas untuk memproses/menghapus secara individu.',
@@ -377,14 +386,24 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
                     ),
                   );
                 },
-                icon: const Icon(Icons.check_rounded, size: 16),
-                label: const Text('Proses Semua', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: color,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
+                icon: const Icon(Icons.check_rounded, size: 14),
+
+label: const Text(
+  'Proses Semua',
+  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+),
+
+style: ElevatedButton.styleFrom(
+  backgroundColor: color,
+  foregroundColor: Colors.white,
+  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+  minimumSize: const Size(0, 34),
+  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  visualDensity: VisualDensity.compact,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(10),
+  ),
+),
               ),
             ],
           ),
