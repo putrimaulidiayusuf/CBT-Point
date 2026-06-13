@@ -139,7 +139,7 @@ class CustomHeader extends StatelessWidget {
             ],
           ),
           content: const Text(
-            'Apakah kamu yakin ingin logout dari ZiePoint?',
+            'Apakah kamu yakin ingin logout?',
             style: TextStyle(color: Colors.black87, fontSize: 14),
           ),
           actions: [

@@ -119,52 +119,55 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
         ),
       ),
       body: Stack(
-        children: [
-          // Background Glows
-          Positioned(
-            top: 150,
-            right: -100,
-            child: Container(
-              width: 320,
-              height: 320,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 80,
-            left: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFFF2E93).withValues(alpha: 0.05),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildDraftTab(context),
-                _buildPesanTab(context),
-              ],
-            ),
-          ),
-        ],
+  children: [
+    // Background Glows
+    Positioned(
+      top: 150,
+      right: -100,
+      child: Container(
+        width: 320,
+        height: 320,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+          child: Container(color: Colors.transparent),
+        ),
       ),
+    ),
+    Positioned(
+      bottom: 80,
+      left: -100,
+      child: Container(
+        width: 300,
+        height: 300,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: const Color(0xFFFF2E93).withValues(alpha: 0.05),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
+          child: Container(color: Colors.transparent),
+        ),
+      ),
+    ),
+
+    // ✅ FIX OVERFLOW DI SINI
+    Positioned.fill(
+      child: SafeArea(
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildDraftTab(context),
+            _buildPesanTab(context),
+          ],
+        ),
+      ),
+    ),
+  ],
+),
     );
   }
 
@@ -312,7 +315,7 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
           // Daftar Penerima (Siswa)
           const Text(
             'Daftar Penerima Poin:',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.whie),
           ),
           const SizedBox(height: 10),
           // Student list as horizontal chips
