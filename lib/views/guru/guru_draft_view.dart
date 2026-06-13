@@ -10,7 +10,8 @@ import '../widgets/search_field.dart';
 /// 1. Daftar Draft belum diproses (bisa proses per siswa, proses semua, edit, hapus)
 /// 2. Formulir Kirim Surat / Pesan Peringatan ke Siswa dengan Lampiran Dokumen Realistis
 class GuruDraftView extends StatefulWidget {
-  const GuruDraftView({super.key});
+  final int initialTab;
+  const GuruDraftView({super.key, this.initialTab = 0});
 
   @override
   State<GuruDraftView> createState() => _GuruDraftViewState();
@@ -35,7 +36,7 @@ class _GuruDraftViewState extends State<GuruDraftView> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: widget.initialTab);
   }
 
   @override

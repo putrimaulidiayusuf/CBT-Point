@@ -34,8 +34,7 @@ class SiswaDashboardView extends StatelessWidget {
           // Header
           CustomHeader(
             nama: siswa.nama,
-            detail1: siswa.kelas,
-            detail2: 'NIS: ${siswa.nis}',
+            detail1: '${siswa.nis} | ${siswa.kelas}',
             backgroundColor: const Color(0xFF302B63),
             onLogout: () {
               authVm.logout();
@@ -109,7 +108,8 @@ class SiswaDashboardView extends StatelessWidget {
   /// Section informasi: QR Code + Total Apresiasi + Total Pelanggaran
   Widget _buildInfoSection(
       BuildContext context, String nis, String nama, SiswaViewModel vm) {
-    return IntrinsicHeight(
+    return SizedBox(
+      height: 200,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -142,7 +142,7 @@ class SiswaDashboardView extends StatelessWidget {
                     QrImageView(
                       data: nis,
                       version: QrVersions.auto,
-                      size: 100,
+                      size: 96,
                       gapless: true,
                       eyeStyle: const QrEyeStyle(
                         eyeShape: QrEyeShape.square,

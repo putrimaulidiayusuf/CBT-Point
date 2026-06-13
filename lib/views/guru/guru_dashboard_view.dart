@@ -12,7 +12,8 @@ import 'guru_draft_view.dart';
 import 'guru_riwayat_view.dart';
 
 /// Halaman utama Guru (Dashboard)
-/// Menampilkan: Header, Menu Utama (Scan QR, Draf & Pesan, Riwayat), Pilihan Cepat Jenis Poin
+/// Menampilkan: Header (NIP | Kelas/Role), Menu Utama Sejajar (Scan QR vs Riwayat/Draf), 
+/// Menu Surat di bawahnya, dan shortcut pemberian poin cepat.
 class GuruDashboardView extends StatefulWidget {
   const GuruDashboardView({super.key});
 
@@ -59,10 +60,10 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
       backgroundColor: const Color(0xFFF5F5FA),
       body: Column(
         children: [
-          // Header Guru
+          // Header Guru (Request #1 & #5)
           CustomHeader(
             nama: guru.nama,
-            detail1: 'NIP: ${guru.nip}',
+            detail1: '${guru.nip} | Guru',
             backgroundColor: const Color(0xFF302B63),
             onLogout: () {
               authVm.logout();
@@ -85,10 +86,10 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ===== MENU NAVIGASI GURU =====
+                          // ===== MENU NAVIGASI GURU (Request #5) =====
                           _buildSectionTitle('Menu Utama'),
                           const SizedBox(height: 12),
-                          _buildMenuGrid(context),
+                          _buildMenuLayout(context, guruVm),
                           const SizedBox(height: 24),
 
                           // ===== SECTION JENIS POIN =====
@@ -222,62 +223,160 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
     );
   }
 
-  Widget _buildMenuGrid(BuildContext context) {
+  /// Menu layout terstruktur setinggi 200px sejajar (Siswa-like layout)
+  Widget _buildMenuLayout(BuildContext context, GuruViewModel vm) {
     return Column(
       children: [
-        Row(
-          children: [
-            // Menu Scan QR
-            Expanded(
-              child: _buildMenuCard(
-                context: context,
-                title: 'Scan QR Siswa',
-                subtitle: 'Pindai kartu siswa',
-                icon: Icons.qr_code_scanner,
-                color: const Color(0xFF302B63),
-                destination: const GuruScanQrView(),
+        SizedBox(
+          height: 200,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Kiri: Scan QR Code (Large Card) - Request #5 & #6
+              Expanded(
+                flex: 2,
+                child: _buildLargeMenuCard(
+                  context: context,
+                  title: 'Scan QR Siswa',
+                  description: 'Pindai instan NIS siswa menggunakan kamera pemindai',
+                  icon: Icons.qr_code_scanner_rounded,
+                  color: const Color(0xFF302B63),
+                  destination: const GuruScanQrView(),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            // Menu Draf & Pesan
-            Expanded(
-              child: _buildMenuCard(
-                context: context,
-                title: 'Draf & Surat',
-                subtitle: 'Kelola draf & pesan',
-                icon: Icons.assignment_outlined,
-                color: const Color(0xFF6C63FF),
-                destination: const GuruDraftView(),
+              const SizedBox(width: 12),
+              // Kanan: Column berisi Riwayat dan Draf - Request #5
+              Expanded(
+                flex: 2,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _buildSmallMenuCard(
+                        context: context,
+                        title: 'Riwayat Poin',
+                        subtitle: '${vm.riwayatPoin.length} Riwayat Diberikan',
+                        icon: Icons.history_rounded,
+                        color: Colors.teal.shade700,
+                        destination: const GuruRiwayatView(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: _buildSmallMenuCard(
+                        context: context,
+                        title: 'Kelola Draf',
+                        subtitle: '${vm.drafts.length} Draf Tersimpan',
+                        icon: Icons.drafts_rounded,
+                        color: const Color(0xFF6C63FF),
+                        destination: const GuruDraftView(initialTab: 0),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 12),
-        // Menu Riwayat (Full Width)
-        _buildMenuCard(
+        // Bawah Riwayat & Draf: Kirim Surat/Pesan (Full Width Card) - Request #5
+        _buildFullWidthMenuCard(
           context: context,
-          title: 'Riwayat Pemberian Poin',
-          subtitle: 'Histori penugasan poin oleh Anda',
-          icon: Icons.history,
-          color: Colors.teal.shade700,
-          destination: const GuruRiwayatView(),
-          isFullWidth: true,
+          title: 'Kirim Surat Peringatan / Pembinaan',
+          subtitle: 'Kirim surat peringatan atau apresiasi langsung ke inbox siswa',
+          icon: Icons.mail_outline_rounded,
+          color: const Color(0xFFFF2E93),
+          destination: const GuruDraftView(initialTab: 1),
         ),
       ],
     );
   }
 
-  Widget _buildMenuCard({
+  Widget _buildLargeMenuCard({
+    required BuildContext context,
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color color,
+    required Widget destination,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color, color.withValues(alpha: 0.85)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.35),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => destination),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Glowing scan icon
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: Colors.white, size: 36),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.white.withValues(alpha: 0.7),
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSmallMenuCard({
     required BuildContext context,
     required String title,
     required String subtitle,
     required IconData icon,
     required Color color,
     required Widget destination,
-    bool isFullWidth = false,
   }) {
     return Container(
-      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -286,6 +385,77 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
           BoxShadow(
             color: color.withValues(alpha: 0.05),
             blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => destination),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: color.withValues(alpha: 0.1),
+                  child: Icon(icon, color: color, size: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1A1A2E)),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey.shade400),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFullWidthMenuCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required Widget destination,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color.withValues(alpha: 0.12), color.withValues(alpha: 0.04)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.04),
+            blurRadius: 6,
             offset: const Offset(0, 3),
           ),
         ],
@@ -305,26 +475,27 @@ class _GuruDashboardViewState extends State<GuruDashboardView> {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: color.withValues(alpha: 0.1),
+                  backgroundColor: color.withValues(alpha: 0.15),
                   child: Icon(icon, color: color),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: color),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                        style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey.shade400),
+                Icon(Icons.arrow_forward_ios, size: 14, color: color.withValues(alpha: 0.7)),
               ],
             ),
           ),
